@@ -1,0 +1,26 @@
+name: Virus Scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  scan:
+    name: ClamAV Virus Scan
+    runs-on: ubuntu-latest
+    
+    # --- START: Added Permissions Block ---
+    # This block limits the workflow's access to read-only
+    permissions:
+      contents: read
+    # --- END: Added Permissions Block ---
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run ClamAV scan (Alternative)
+        uses: djdefi/gitavscan@main
