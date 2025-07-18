@@ -3,7 +3,7 @@
   <p><strong>تطبيقك الأمثل لتحليل وحساب عوائد أذون الخزانة المصرية بدقة وسهولة.</strong></p>
   
   <p>
-    <a href="https://egyptian-bills-calculator.streamlit.app/" target="_blank"><img src="https://img.shields.io/badge/Launch-App-FF4B4B?logo=streamlit" alt="Launch App"></a>
+    <a href="https://treasury-bills-calc.streamlit.app/" target="_blank"><img src="https://img.shields.io/badge/Launch-App-FF4B4B?logo=streamlit" alt="Launch App"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml/badge.svg" alt="Code Quality Check"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml/badge.svg" alt="Scheduled Scrape"></a>
     <a href="https://streamlit.io" target="_blank"><img src="https://img.shields.io/badge/Made_with-Streamlit-FF4B4B?logo=streamlit" alt="Made with Streamlit"></a>
