@@ -5,7 +5,7 @@
   <p>
     <a href="https://treasury-bills-calc.streamlit.app/" target="_blank"><img src="https://img.shields.io/badge/Launch-App-FF4B4B?logo=streamlit" alt="Launch App"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml/badge.svg" alt="Code Quality Check"></a>
-    <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml/badge.svg" alt="Scheduled Scrape"></a>
+    <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml"><img src="https://img.shields.io/badge/Scheduled_Scrape-Passed-brightgreen?logo=github" alt="Scheduled Scrape"></a>
     <a href="https://streamlit.io" target="_blank"><img src="https://img.shields.io/badge/Made_with-Streamlit-FF4B4B?logo=streamlit" alt="Made with Streamlit"></a>
     <a href="https://www.python.org/" target="_blank"><img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python" alt="Python Version"></a>
   </p>
@@ -17,10 +17,11 @@
 1. [عن المشروع](#-عن-المشروع)
 2. [الميزات الرئيسية](#-الميزات-الرئيسية)
 3. [التشغيل محلياً](#-التشغيل-محلياً)
-4. [هيكل المشروع](#-هيكل-المشروع)
-5. [الترخيص](#-الترخيص-license)
-6. [المساهمة](#-المساهمة)
-7. [المؤلف](#المؤلف)
+4. [التشغيل باستخدام Docker](#-التشغيل-باستخدام-docker)
+5. [هيكل المشروع](#-هيكل-المشروع)
+6. [الترخيص](#-الترخيص-license)
+7. [المساهمة](#-المساهمة)
+8. [المؤلف](#المؤلف)
 
 ---
 
@@ -55,7 +56,7 @@
 #### 2️⃣ تثبيت المشروع
 ```bash
 # انسخ المستودع إلى جهازك
-git clone [https://github.com/Al-QaTari/Treasury-Bills-Calc.git](https://github.com/Al-QaTari/Treasury-Bills-Calc.git)
+git clone https://github.com/Al-QaTari/Treasury-Bills-Calc.git
 
 # ادخل إلى مجلد المشروع
 cd Treasury-Bills-Calc
@@ -77,6 +78,44 @@ python update_data.py
 streamlit run app.py
 ```
 سيفتح التطبيق تلقائيًا في متصفحك على `http://localhost:8501`.
+
+---
+
+## 🐳 التشغيل باستخدام Docker
+
+يمكنك تشغيل التطبيق بسهولة باستخدام Docker لبيئة معزولة ومتسقة.
+
+#### 1️⃣ المتطلبات الأساسية
+- تثبيت Docker على جهازك. يمكنك تنزيله من [الموقع الرسمي لـ Docker](https://www.docker.com/get-started).
+
+#### 2️⃣ بناء صورة Docker
+
+من داخل مجلد المشروع، قم ببناء صورة Docker:
+
+```bash
+docker build -t treasury-bills-calc .
+```
+
+#### 3️⃣ تشغيل حاوية Docker
+
+بعد بناء الصورة، يمكنك تشغيل التطبيق في حاوية Docker:
+
+```bash
+docker run -p 8501:8501 treasury-bills-calc
+```
+
+سيصبح التطبيق متاحًا في متصفحك على `http://localhost:8501`.
+
+#### 4️⃣ تحديث البيانات داخل حاوية Docker
+
+إذا كنت ترغب في تحديث البيانات يدويًا داخل الحاوية بعد تشغيلها، يمكنك تنفيذ الأمر التالي:
+
+```bash
+docker exec <اسم_أو_معرف_الحاوية> python update_data.py
+```
+
+> **ملاحظة:** استبدل `<اسم_أو_معرف_الحاوية>` بالاسم أو المعرف الفعلي لحاوية Docker التي تقوم بتشغيل التطبيق. يمكنك الحصول عليه باستخدام `docker ps`.
+
 
 ---
 
@@ -179,4 +218,6 @@ Treasury-Bills-Calc/
 <p align="center">
 هذا التطبيق هو أداة إرشادية فقط. للحصول على أرقام نهائية ودقيقة، يرجى الرجوع دائمًا إلى البنك أو المؤسسة المالية التي تتعامل معها.
 </p>
+
+
 
