@@ -1,11 +1,4 @@
 import os
-
-if not os.path.exists("/home/appuser/.cache/ms-playwright"):
-    import subprocess
-
-    subprocess.run(["playwright", "install", "chromium"])
-
-# app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -14,11 +7,11 @@ from dotenv import load_dotenv
 import sentry_sdk
 import logging
 from pydantic import ValidationError
-from typing import List, Tuple
 from datetime import datetime, timedelta
 import pytz
+from typing import Tuple
 
-# استيراد المكونات المعمارية الجديدة
+# استيراد المكونات
 from utils import setup_logging, prepare_arabic_text, load_css, format_currency
 from postgres_manager import PostgresDBManager
 from treasury_core.ports import HistoricalDataStore
@@ -27,22 +20,10 @@ from treasury_core.models import PrimaryYieldInput, SecondarySaleInput
 from cbe_scraper import CbeScraper, fetch_and_update_data
 import constants as C
 
-
-@st.cache_resource
-def get_db_manager() -> HistoricalDataStore:
-    if os.environ.get("POSTGRES_URI"):
-        logging.info("PostgreSQL URI found, using PostgresDBManager.")
-        return PostgresDBManager()
-    else:
-        from db_manager import SQLiteDBManager
-
-        logging.warning("POSTGRES_URI not found, falling back to SQLiteDBManager.")
-        return SQLiteDBManager()
-
-
-# تهيئة اللوجينج وتحميل المتغيرات البيئية
+# تهيئة اللوجينج والتتبع
 setup_logging(level=logging.WARNING)
 load_dotenv()
+
 sentry_dsn = os.environ.get("SENTRY_DSN")
 if sentry_dsn:
     sentry_sdk.init(
@@ -50,16 +31,25 @@ if sentry_dsn:
     )
 
 
-def get_next_auction_date(today: datetime) -> Tuple[datetime, str]:
-    # Thursday is 4, Sunday is 7 in isoweekday()
-    days_to_thursday = (4 - today.isoweekday() + 7) % 7
-    if days_to_thursday == 0:
-        days_to_thursday = 7
-    next_thursday = today + timedelta(days=days_to_thursday)
+@st.cache_resource
+def get_db_manager() -> HistoricalDataStore:
+    """تهيئة مدير قاعدة البيانات"""
+    if os.environ.get("POSTGRES_URI"):
+        logging.info("Using PostgresDBManager")
+        return PostgresDBManager()
+    else:
+        from db_manager import SQLiteDBManager
 
-    days_to_sunday = (7 - today.isoweekday() + 7) % 7
-    if days_to_sunday == 0:
-        days_to_sunday = 7
+        logging.warning("Falling back to SQLiteDBManager")
+        return SQLiteDBManager()
+
+
+def get_next_auction_date(today: datetime) -> Tuple[datetime, str]:
+    """حساب تاريخ ومعلومات العطاء القادم"""
+    days_to_thursday = (4 - today.isoweekday() + 7) % 7 or 7
+    days_to_sunday = (7 - today.isoweekday() + 7) % 7 or 7
+
+    next_thursday = today + timedelta(days=days_to_thursday)
     next_sunday = today + timedelta(days=days_to_sunday)
 
     return (
@@ -70,39 +60,40 @@ def get_next_auction_date(today: datetime) -> Tuple[datetime, str]:
 
 
 def format_countdown(time_delta: timedelta) -> str:
-    days = time_delta.days
-    hours, remainder = divmod(time_delta.seconds, 3600)
-    minutes, _ = divmod(remainder, 60)
+    """تنسيق الوقت المتبقي للعطاء القادم"""
     parts = []
-    if days > 0:
-        parts.append(f"{days} يوم")
-    if hours > 0:
-        parts.append(f"{hours} ساعة")
-    if minutes > 0 and days == 0:
-        parts.append(f"{minutes} دقيقة")
+    if time_delta.days > 0:
+        parts.append(f"{time_delta.days} يوم")
+    if time_delta.seconds // 3600 > 0:
+        parts.append(f"{time_delta.seconds // 3600} ساعة")
+    if time_delta.seconds % 3600 // 60 > 0 and not parts:
+        parts.append(f"{time_delta.seconds % 3600 // 60} دقيقة")
     return " و ".join(parts) if parts else "قريباً جداً"
 
 
 def display_auction_results(
-    title: str, info: str, df: pd.DataFrame, expected_tenors: List[int]
+    title: str, info: str, df: pd.DataFrame, expected_tenors: list
 ):
+    """عرض نتائج العطاءات بطريقة منظمة"""
     session_date_str = prepare_arabic_text("تاريخ غير محدد")
     filtered_df = pd.DataFrame()
+
     if not df.empty and C.TENOR_COLUMN_NAME in df.columns:
         filtered_df = df[df[C.TENOR_COLUMN_NAME].isin(expected_tenors)]
-
-    if not filtered_df.empty:
-        valid_dates = filtered_df[C.SESSION_DATE_COLUMN_NAME].dropna()
-        if not valid_dates.empty:
-            session_date_str = str(valid_dates.iloc[0])
+        if not filtered_df.empty:
+            session_date_str = str(filtered_df[C.SESSION_DATE_COLUMN_NAME].iloc[0])
 
     st.markdown(
         f"<h3 style='text-align: center; color: #ffc107;'>{prepare_arabic_text(f'{title} - {session_date_str}')}</h3>",
         unsafe_allow_html=True,
     )
+
     info_with_note = f"{info}<br><small>للشراء يتطلب التواجد في البنك قبل الساعة 10 صباحًا في يوم العطاء.</small>"
     st.markdown(
-        f"""<div style="text-align: center; padding: 0.75rem; background-color: rgba(38, 39, 48, 0.5); border-radius: 0.5rem; border: 1px solid #3c4049; margin-top: 10px; margin-bottom: 20px;">🗓️ {prepare_arabic_text(info_with_note)}</div>""",
+        f"""<div style="text-align: center; padding: 0.75rem; background-color: rgba(38, 39, 48, 0.5); 
+            border-radius: 0.5rem; border: 1px solid #3c4049; margin-top: 10px; margin-bottom: 20px;">
+            🗓️ {prepare_arabic_text(info_with_note)}
+            </div>""",
         unsafe_allow_html=True,
     )
 
@@ -120,11 +111,48 @@ def display_auction_results(
                 if not tenor_data.empty
                 else prepare_arabic_text("غير متاح")
             )
-            card_html = f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 5px; padding: 15px; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;"><p style="font-size: 1.1rem; color: #bdc3c7; margin: 0 0 8px 0;">{label}</p><p style="font-size: 2rem; font-weight: 700; color: #ffffff; margin: 0;">{value}</p></div>"""
-            st.markdown(card_html, unsafe_allow_html=True)
+
+            st.markdown(
+                f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 5px; 
+                    padding: 15px; text-align: center; height: 100%; display: flex; flex-direction: column; 
+                    justify-content: center;">
+                    <p style="font-size: 1.1rem; color: #bdc3c7; margin: 0 0 8px 0;">{label}</p>
+                    <p style="font-size: 2rem; font-weight: 700; color: #ffffff; margin: 0;">{value}</p>
+                    </div>""",
+                unsafe_allow_html=True,
+            )
+
+
+def validate_and_calculate_primary(inputs: dict):
+    """التحقق من صحة وحساب العائد الأساسي"""
+    try:
+        user_inputs = PrimaryYieldInput(**inputs)
+        return calculate_primary_yield(user_inputs)
+    except ValidationError as e:
+        st.error(f"خطأ في المدخلات: {e.errors()[0]['msg']}")
+        return None
+    except Exception as e:
+        st.error(f"حدث خطأ غير متوقع: {str(e)}")
+        logging.exception("Error in primary yield calculation")
+        return None
+
+
+def validate_and_calculate_secondary(inputs: dict):
+    """التحقق من صحة وحساب البيع الثانوي"""
+    try:
+        user_inputs = SecondarySaleInput(**inputs)
+        return analyze_secondary_sale(user_inputs)
+    except ValidationError as e:
+        st.error(f"خطأ في المدخلات: {e.errors()[0]['msg']}")
+        return None
+    except Exception as e:
+        st.error(f"حدث خطأ غير متوقع: {str(e)}")
+        logging.exception("Error in secondary sale calculation")
+        return None
 
 
 def main():
+    # تهيئة الصفحة
     st.set_page_config(
         layout="wide",
         page_title=prepare_arabic_text("حاسبة أذون الخزانة"),
@@ -132,43 +160,46 @@ def main():
     )
     load_css(os.path.join(os.path.dirname(__file__), "css", "style.css"))
 
+    # تهيئة حالة الجلسة
+    if "update_successful" not in st.session_state:
+        st.session_state.update_successful = False
+
     db_adapter = get_db_manager()
     scraper_adapter = CbeScraper()
-
-    # --- بداية التعديل: استعادة تهيئة متغيرات الجلسة ---
-    if "update_successful" in st.session_state and st.session_state.update_successful:
-        for key in ["df_data", "historical_df", "last_update"]:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.session_state.update_successful = False
 
     if "df_data" not in st.session_state:
         st.session_state.df_data, st.session_state.last_update = (
             db_adapter.load_latest_data()
         )
-    if "historical_df" not in st.session_state:
         st.session_state.historical_df = db_adapter.load_all_historical_data()
-    if "primary_results" not in st.session_state:
         st.session_state.primary_results = None
-    if "secondary_results" not in st.session_state:
         st.session_state.secondary_results = None
-    # --- نهاية التعديل ---
 
+    # استخراج البيانات من حالة الجلسة
     data_df = st.session_state.df_data
-    last_update_date, last_update_time = st.session_state.last_update
     historical_df = st.session_state.historical_df
+    last_update_date, last_update_time = (
+        st.session_state.last_update
+        if st.session_state.last_update
+        else ("البيانات الأولية", None)
+    )
 
+    # واجهة المستخدم الرئيسية
     st.markdown(
-        f"""<div class="centered-header" style="background-color: #343a40; padding: 20px 10px; border-radius: 15px; margin-bottom: 1rem;">
-        <h1 style="color: #ffffff; margin: 0;">{prepare_arabic_text(C.APP_TITLE)}</h1>
-        <p style="color: #aab8c2; margin-top: 10px;">{prepare_arabic_text(C.APP_HEADER)}</p>
-        <div style="margin-top: 15px; font-size: 0.9rem; color: #adb5bd;">صُمم بواسطة <span style="font-weight: bold; color: #00bfff;">{C.AUTHOR_NAME}</span></div>
-    </div>""",
+        f"""<div class="centered-header" style="background-color: #343a40; padding: 20px 10px; 
+            border-radius: 15px; margin-bottom: 1rem;">
+            <h1 style="color: #ffffff; margin: 0;">{prepare_arabic_text(C.APP_TITLE)}</h1>
+            <p style="color: #aab8c2; margin-top: 10px;">{prepare_arabic_text(C.APP_HEADER)}</p>
+            <div style="margin-top: 15px; font-size: 0.9rem; color: #adb5bd;">
+                صُمم بواسطة <span style="font-weight: bold; color: #00bfff;">{C.AUTHOR_NAME}</span>
+            </div>
+            </div>""",
         unsafe_allow_html=True,
     )
 
-    top_col1, top_col2 = st.columns([2, 1], gap="large")
-    with top_col1:
+    # قسم البيانات والعطاءات
+    col1, col2 = st.columns([2, 1], gap="large")
+    with col1:
         with st.container(border=True):
             st.subheader("📊 أحدث العوائد المعتمدة")
             st.divider()
@@ -180,17 +211,13 @@ def main():
                 "عطاء الأحد", "آجال (3 أشهر و 9 أشهر)", data_df, [91, 273]
             )
             st.divider()
-    with top_col2:
+
+    with col2:
         with st.container(border=True):
             st.subheader("📡 مركز البيانات")
-
             now_cairo = datetime.now(pytz.timezone(C.TIMEZONE))
-            next_auction_dt, next_auction_day_name = get_next_auction_date(now_cairo)
-            time_left = next_auction_dt - now_cairo
-            countdown_str = format_countdown(time_left)
+            next_auction_dt, next_auction_day = get_next_auction_date(now_cairo)
 
-            now_cairo = datetime.now(pytz.timezone(C.TIMEZONE))
-            next_auction_dt, next_auction_day_name = get_next_auction_date(now_cairo)
             last_update_is_recent = False
             if last_update_date != "البيانات الأولية":
                 try:
@@ -204,6 +231,7 @@ def main():
 
             button_placeholder = st.empty()
             update_clicked = False
+
             if last_update_date == "البيانات الأولية":
                 st.warning(
                     "البيانات أولية. يرجى التحديث للحصول على أحدث العوائد.", icon="⚠️"
@@ -222,7 +250,7 @@ def main():
                 time_left = next_auction_dt - now_cairo
                 countdown_str = format_countdown(time_left)
                 st.info(
-                    f"في انتظار بيانات عطاء يوم {next_auction_day_name} القادم. متبقٍ: {countdown_str}",
+                    f"في انتظار بيانات عطاء يوم {next_auction_day} القادم. متبقٍ: {countdown_str}",
                     icon="⏳",
                 )
             else:
