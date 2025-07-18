@@ -1,0 +1,51 @@
+name: Scrape Latest CBE Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 13-21 * * 0,4' # كل ساعة من 4 عصراً حتى 12 مساءً بتوقيت مصر، يومي الأحد والخميس
+    - cron: '0 5 * * *' # مرة واحدة يومياً الساعة 8 صباحاً بتوقيت مصر كفحص احتياطي
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # تبقى كما هي في حال أردت إضافة أي commit مستقبلاً
+
+    # --- بداية التعديل: إضافة كل الأسرار المطلوبة ---
+    env:
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      POSTGRES_URI: ${{ secrets.POSTGRES_URI }}
+      AIVEN_REDIS_URI: ${{ secrets.AIVEN_REDIS_URI }}
+    # --- نهاية التعديل ---
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # --- بداية التعديل: تثبيت الاعتماديات والمتصفح ---
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Install Playwright Browsers
+        run: playwright install chromium --with-deps
+      # --- نهاية التعديل ---
+      
+      - name: Run data update script
+        run: python update_data.py
+
+      # --- بداية التعديل: حذف الخطوة القديمة ---
+      # لم نعد بحاجة لحفظ أي ملفات، فالبيانات الآن في PostgreSQL
+      # - name: Commit and push changes
+      #   uses: stefanzweifel/git-auto-commit-action@v5
+      #   with:
+      #     commit_message: "Update CBE historical data [BOT]"
+      #     file_pattern: cbe_historical_data.db
+      # --- نهاية التعديل ---
