@@ -1,6 +1,11 @@
 import pytest
-import pytest_asyncio
-from playwright.async_api import async_playwright, expect
+
+# ✅ التخطي على مستوى الملف إذا لم تتوفر المكتبات المطلوبة
+try:
+    import pytest_asyncio
+    from playwright.async_api import async_playwright, expect
+except ImportError:
+    pytest.skip("تخطي test_ui.py لأن المكتبات غير مثبتة", allow_module_level=True)
 
 STREAMLIT_APP_URL = "http://localhost:8501"
 
