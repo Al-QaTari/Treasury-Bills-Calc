@@ -6,10 +6,9 @@
     <a href="https://treasury-bills-calc.streamlit.app/" target="_blank"><img src="https://img.shields.io/badge/Launch-App-FF4B4B?logo=streamlit" alt="Launch App"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/quality_check.yml/badge.svg" alt="Code Quality Check"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/scheduled_scrape.yml"><img src="https://img.shields.io/badge/Scheduled_Scrape-Passed-brightgreen?logo=github" alt="Scheduled Scrape"></a>
+    <a href="https://www.python.org/" target="_blank"><img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python" alt="Python Version"></a>
     <a href="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/virus-scan.yml"><img src="https://github.com/Al-QaTari/Treasury-Bills-Calc/actions/workflows/virus-scan.yml/badge.svg"></a>
   </p>
-    <a href="https://streamlit.io" target="_blank"><img src="https://img.shields.io/badge/Made_with-Streamlit-FF4B4B?logo=streamlit" alt="Made with Streamlit"></a>
-    
 </div>
 
 ---
@@ -40,7 +39,7 @@
 | **🧮 حاسبة العائد الأساسية** | حساب صافي الربح، الضرائب، ونسبة العائد الفعلية عند الشراء والاحتفاظ حتى الاستحقاق. |
 | **⚖️ حاسبة البيع الثانوي** | تحليل قرار البيع المبكر وحساب الربح أو الخسارة المحتملة بناءً على العائد السائد في السوق. |
 | **🗄️ قاعدة بيانات تاريخية** | حفظ البيانات المجلوبة في قاعدة بيانات SQLite لتتبع التغيرات في العوائد مع مرور الوقت. |
-| **🗄️ قاعدة بيانات PostgreSQL** |استخدام PostgreSQL كقاعدة بيانات قوية موثوقة لضمان سلامة البيانات وإتاحتها للتحليل طويل الأمد. |
+| **🗄️ قاعدة بيانات PostgreSQL** |كقاعدة بيانات قوية موثوقة لضمان سلامة البيانات وإتاحتها للتحليل طويل الأمد PostgreSQLاستخدام. |
 | **⚙️ أتمتة كاملة (CI/CD)** | استخدام GitHub Actions لفحص جودة الكود، وتطبيق التنسيق، وتشغيل الاختبارات تلقائياً. |
 | **💡 شرح مفصل** | قسم للمساعدة يشرح المفاهيم المالية الأساسية وكيفية عمل الحاسبات. |
 
