@@ -105,8 +105,8 @@ def display_auction_results(
         unsafe_allow_html=True,
     )
 
-    # استخدام columns مع gap أقل
-    cols = st.columns(len(expected_tenors), gap="small")
+    # استخدام columns مع gap أكبر لضمان عرض كامل المحتوى
+    cols = st.columns(len(expected_tenors), gap="medium")
     for i, tenor in enumerate(expected_tenors):
         with cols[i]:
             label = prepare_arabic_text(f"أجل {tenor} يوم")
@@ -122,11 +122,11 @@ def display_auction_results(
             )
 
             st.markdown(
-                f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 6px; 
-                    padding: 10px; text-align: center; height: 80px; display: flex; flex-direction: column; 
-                    justify-content: center; margin: 5px 0; max-width: 100%; box-sizing: border-box;">
-                    <p style="font-size: 0.9rem; color: #bdc3c7; margin: 0 0 5px 0;">{label}</p>
-                    <p style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin: 0;">{value}</p>
+                f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 8px; 
+                    padding: 15px 12px; text-align: center; min-height: 100px; display: flex; flex-direction: column; 
+                    justify-content: center; margin: 8px 0; min-width: 120px; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word;">
+                    <p style="font-size: 1rem; color: #bdc3c7; margin: 0 0 8px 0; word-break: break-word; overflow-wrap: break-word;">{label}</p>
+                    <p style="font-size: 1.8rem; font-weight: 700; color: #ffffff; margin: 0; word-break: break-word; overflow-wrap: break-word; line-height: 1.3;">{value}</p>
                     </div>""",
                 unsafe_allow_html=True,
             )
@@ -372,7 +372,7 @@ def main():
 
     st.divider()
     st.header(prepare_arabic_text(C.PRIMARY_CALCULATOR_TITLE))
-    col_form_main, col_results_main = st.columns(2, gap="medium")
+    col_form_main, col_results_main = st.columns([1, 1.2], gap="large")
     with col_form_main:
         with st.container(border=True):
             st.subheader(prepare_arabic_text("1. أدخل بيانات الاستثمار"), anchor=False)
@@ -460,33 +460,33 @@ def main():
                 results = primary_data["results_obj"]
                 # استخدام حاوية بحدود واضحة وعرض مرن
                 with st.container(border=True):
-                    st.markdown(
-                        """
-                        <div class="result-card" style="max-width:100%; padding:10px; margin:5px 0;">
-                        <div style="width:100%;text-align:center;">
-                        <span style="font-size:0.9rem;color:#adb5bd;">{}</span>
-                        <div style="font-size:1.8rem;color:#ffc107;font-weight:700;line-height:1.2;">{:.3f}%</div>
-                        </div>
-                        <div style="margin:8px 0;"></div>
-                        <div style="background:#495057;padding:6px 0;border-radius:6px;margin-bottom:6px;">
-                        <span style="font-size:0.85rem;color:#adb5bd;">💰 {}</span>
-                        <div style="font-size:1.2rem;color:#28a745;font-weight:600;">{}</div>
-                        </div>
-                        <div style="background:#212529;padding:6px 0;border-radius:6px;">
-                        <span style="font-size:0.85rem;color:#adb5bd;">{}</span>
-                        <div style="font-size:1.2rem;color:#8ab4f8;font-weight:600;">{}</div>
-                        </div>
-                        </div>
-                        """.format(
-                            prepare_arabic_text(f"النسبة الفعلية للربح (عن الفترة) لأجل {primary_data['tenor']} يوم"),
-                            results.real_profit_percentage,
-                            prepare_arabic_text("صافي الربح المقدم"),
-                            format_currency(results.net_return),
-                            prepare_arabic_text("المبلغ النهائي بعد الأرباح"),
-                            format_currency(results.total_payout + results.net_return),
-                        ),
-                        unsafe_allow_html=True,
-                    )
+                                    st.markdown(
+                    """
+                    <div class="result-card" style="min-width:280px;min-height:140px;padding:20px 16px;margin:8px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;word-break:break-word;overflow-wrap:break-word;white-space:normal;">
+                    <div style="width:100%;text-align:center;max-width:100%;overflow-wrap:break-word;word-break:break-word;">
+                    <span style="font-size:1rem;color:#adb5bd;display:block;margin-bottom:8px;">{}</span>
+                    <div style="font-size:2.2rem;color:#ffc107;font-weight:700;line-height:1.3;word-break:break-word;overflow-wrap:break-word;">{:.3f}%</div>
+                    </div>
+                    <div style="margin:12px 0;"></div>
+                    <div style="background:#495057;padding:8px 12px;border-radius:8px;margin-bottom:8px;width:100%;text-align:center;">
+                    <span style="font-size:0.9rem;color:#adb5bd;display:block;margin-bottom:4px;">💰 {}</span>
+                    <div style="font-size:1.4rem;color:#28a745;font-weight:600;word-break:break-word;overflow-wrap:break-word;">{}</div>
+                    </div>
+                    <div style="background:#212529;padding:8px 12px;border-radius:8px;width:100%;text-align:center;">
+                    <span style="font-size:0.9rem;color:#adb5bd;display:block;margin-bottom:4px;">{}</span>
+                    <div style="font-size:1.4rem;color:#8ab4f8;font-weight:600;word-break:break-word;overflow-wrap:break-word;">{}</div>
+                    </div>
+                    </div>
+                    """.format(
+                        prepare_arabic_text(f"النسبة الفعلية للربح (عن الفترة) لأجل {primary_data['tenor']} يوم"),
+                        results.real_profit_percentage,
+                        prepare_arabic_text("صافي الربح المقدم"),
+                        format_currency(results.net_return),
+                        prepare_arabic_text("المبلغ النهائي بعد الأرباح"),
+                        format_currency(results.total_payout + results.net_return),
+                    ),
+                    unsafe_allow_html=True,
+                )
                     st.divider()
                     with st.expander(
                         prepare_arabic_text("عرض تفاصيل الحساب الكاملة"), expanded=False
@@ -514,7 +514,7 @@ def main():
 
     st.divider()
     st.header(prepare_arabic_text(C.SECONDARY_CALCULATOR_TITLE))
-    col_secondary_form, col_secondary_results = st.columns(2, gap="medium")
+    col_secondary_form, col_secondary_results = st.columns([1, 1.2], gap="large")
     with col_secondary_form:
         with st.container(border=True):
             st.subheader(
@@ -597,16 +597,16 @@ def main():
             with st.container(border=True):
                 st.markdown(
                     """
-                    <div class="result-card" style="max-width:100%; padding:10px; margin:5px 0;">
-                    <div style="width:100%;text-align:center;">
-                    <span style="font-size:0.9rem;color:#adb5bd;">{}</span>
-                    <div style="font-size:1.8rem;color:{};font-weight:700;line-height:1.2;">{}</div>
-                    <div style="font-size:0.85rem;color:{};margin-top:-5px;">({:.2f}% {})</div>
+                    <div class="result-card" style="min-width:280px;min-height:140px;padding:20px 16px;margin:8px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;word-break:break-word;overflow-wrap:break-word;white-space:normal;">
+                    <div style="width:100%;text-align:center;max-width:100%;overflow-wrap:break-word;word-break:break-word;">
+                    <span style="font-size:1rem;color:#adb5bd;display:block;margin-bottom:8px;">{}</span>
+                    <div style="font-size:2.2rem;color:{};font-weight:700;line-height:1.3;word-break:break-word;overflow-wrap:break-word;">{}</div>
+                    <div style="font-size:1rem;color:{};margin-top:4px;word-break:break-word;overflow-wrap:break-word;">({:.2f}% {})</div>
                     </div>
-                    <div style="margin:8px 0;"></div>
-                    <div style="background:#495057;padding:6px 0;border-radius:6px;margin-bottom:6px;">
-                    <span style="font-size:0.85rem;color:#adb5bd;">🏷️ {}</span>
-                    <div style="font-size:1.2rem;color:#8ab4f8;font-weight:600;">{}</div>
+                    <div style="margin:12px 0;"></div>
+                    <div style="background:#495057;padding:8px 12px;border-radius:8px;margin-bottom:8px;width:100%;text-align:center;">
+                    <span style="font-size:0.9rem;color:#adb5bd;display:block;margin-bottom:4px;">🏷️ {}</span>
+                    <div style="font-size:1.4rem;color:#8ab4f8;font-weight:600;word-break:break-word;overflow-wrap:break-word;">{}</div>
                     </div>
                     </div>
                     """.format(
