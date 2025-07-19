@@ -9,6 +9,7 @@ from .models import (
 from pydantic import ValidationError
 from decimal import Decimal, getcontext
 from utils import log_performance_metrics, safe_divide, validate_numeric_input
+import time
 
 # تهيئة دقة الأرقام العشرية
 getcontext().prec = 10
@@ -28,7 +29,7 @@ def calculate_primary_yield(
     - إضافة مقاييس الأداء
     - تحسين التحقق من صحة المدخلات
     """
-    start_time = log_performance_metrics.__globals__.get('time', lambda: 0)()
+    start_time = time.time()
     
     try:
         logger.debug(f"بدء حساب العائد الأساسي بالبيانات: {inputs.model_dump()}")
@@ -201,7 +202,7 @@ def analyze_secondary_sale(
     - إضافة مقاييس الأداء
     - تحسين التحقق من صحة المدخلات
     """
-    start_time = log_performance_metrics.__globals__.get('time', lambda: 0)()
+    start_time = time.time()
     
     try:
         logger.debug(f"بدء تحليل البيع الثانوي بالبيانات: {inputs.model_dump()}")
