@@ -39,18 +39,18 @@
     --color-bg-info: rgba(23, 162, 184, 0.1);
     
     /* مسافات وحدود وظلال */
-    --border-radius-main: 15px;
-    --border-radius-small: 8px;
-    --border-radius-large: 20px;
-    --padding-main: 25px;
-    --padding-small: 15px;
-    --padding-large: 35px;
-    --margin-main: 20px;
-    --margin-small: 10px;
-    --margin-large: 30px;
-    --box-shadow-main: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --box-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.25);
-    --box-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    --border-radius-main: 10px;
+    --border-radius-small: 6px;
+    --border-radius-large: 15px;
+    --padding-main: 15px;
+    --padding-small: 10px;
+    --padding-large: 20px;
+    --margin-main: 15px;
+    --margin-small: 8px;
+    --margin-large: 20px;
+    --box-shadow-main: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --box-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --box-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 
     /* سرعات الانتقال */
     --transition-speed: 0.3s;
@@ -58,14 +58,14 @@
     --transition-speed-slow: 0.5s;
     
     /* أحجام الخطوط */
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
-    --font-size-4xl: 2.25rem;
+    --font-size-xs: 0.7rem;
+    --font-size-sm: 0.8rem;
+    --font-size-base: 0.9rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.1rem;
+    --font-size-2xl: 1.3rem;
+    --font-size-3xl: 1.6rem;
+    --font-size-4xl: 1.9rem;
     
     /* أوزان الخطوط */
     --font-weight-light: 300;
@@ -90,7 +90,7 @@ html, body {
     color: var(--color-text-primary);
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    line-height: 1.5;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
     -webkit-font-smoothing: antialiased;
@@ -124,12 +124,13 @@ select,
     border: none !important;
     color: white !important;
     font-weight: var(--font-weight-semibold) !important;
-    padding: 12px 24px !important;
+    padding: 8px 16px !important;
+    font-size: var(--font-size-sm) !important;
     box-shadow: var(--box-shadow-main) !important;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
+    transform: translateY(-1px) !important;
     box-shadow: var(--box-shadow-hover) !important;
     background: linear-gradient(135deg, var(--color-accent-hover), var(--color-accent)) !important;
 }
@@ -138,23 +139,37 @@ select,
     transform: translateY(0) !important;
 }
 
-/* تحسين حقول الإدخال */
+/* تحسين حقول الإدخال - تقليل حجم الخط */
 .stTextInput > div > div > input,
 .stNumberInput > div > div > input,
 .stSelectbox > div > div > div {
     background-color: var(--color-container-bg) !important;
-    border: 2px solid var(--color-border) !important;
+    border: 1px solid var(--color-border) !important;
     color: var(--color-text-primary) !important;
-    padding: 12px 16px !important;
-    font-size: var(--font-size-base) !important;
+    padding: 6px 10px !important;
+    font-size: var(--font-size-sm) !important;
+    max-width: 100% !important;
+    min-width: 100px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 .stTextInput > div > div > input:focus,
 .stNumberInput > div > div > input:focus,
 .stSelectbox > div > div > div:focus {
     border-color: var(--color-accent) !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
     outline: none !important;
+}
+
+/* تحسين labels */
+.stTextInput > div > label,
+.stNumberInput > div > label,
+.stSelectbox > div > label {
+    font-size: var(--font-size-sm) !important;
+    color: var(--color-text-secondary) !important;
+    margin-bottom: 4px !important;
 }
 
 /* =================================================================
@@ -169,28 +184,41 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-3xl);
     margin-bottom: var(--margin-main);
 }
 
 h2 {
-    font-size: var(--font-size-3xl);
-    margin-bottom: var(--margin-small);
-}
-
-h3 {
     font-size: var(--font-size-2xl);
     margin-bottom: var(--margin-small);
 }
 
-h4 {
+h3 {
     font-size: var(--font-size-xl);
     margin-bottom: var(--margin-small);
 }
 
+h4 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--margin-small);
+}
+
+/* تحسين subheaders في Streamlit */
+[data-testid="stMarkdown"] h3 {
+    font-size: var(--font-size-lg) !important;
+    margin: 8px 0 !important;
+    padding: 0 !important;
+}
+
+[data-testid="stMarkdown"] h4 {
+    font-size: var(--font-size-base) !important;
+    margin: 6px 0 !important;
+    padding: 0 !important;
+}
+
 p, span, label {
     color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     margin-bottom: var(--margin-small);
 }
 
@@ -202,37 +230,38 @@ p, span, label {
 }
 
 /* =================================================================
-   4. LAYOUT & COMPONENTS (التخطيط والمكونات)
+   4. LAYOUT & CONTAINERS (التخطيط والحاويات)
    ================================================================= */
 
-/* خلفية التطبيق */
+/* تحسين الحاويات الرئيسية */
 .main > div {
-    background-color: var(--color-background);
-    min-height: 100vh;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 10px !important;
 }
 
-/* تنسيق الحاويات الداخلية (blocks) */
+/* تحسين البطاقات - تقليل الحجم */
 div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
     background-color: var(--color-container-bg) !important;
-    color: var(--color-text-primary) !important;
     border: 1px solid var(--color-border) !important;
     border-radius: var(--border-radius-main) !important;
-    padding: var(--padding-main) !important;
+    padding: var(--padding-small) !important;
+    margin: var(--margin-small) 0 !important;
     box-shadow: var(--box-shadow-main) !important;
-    transition: all var(--transition-speed) ease-in-out;
-    margin-bottom: var(--margin-main);
+    max-width: 100% !important;
+    min-width: 200px !important;
+    box-sizing: border-box !important;
 }
 
 div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:hover {
     box-shadow: var(--box-shadow-hover) !important;
-    transform: translateY(-2px);
+    transform: translateY(-1px) !important;
 }
 
-/* محاذاة الأعمدة بشكل مرن */
+/* تحسين الأعمدة */
 div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
-    vertical-align: top;
-    display: flex;
-    flex-direction: column;
+    padding: 0 5px !important;
+    margin: 0 !important;
 }
 
 /* تحسين الحاويات */
@@ -240,62 +269,68 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
     background-color: var(--color-container-bg) !important;
     border: 1px solid var(--color-border) !important;
     border-radius: var(--border-radius-main) !important;
-    padding: var(--padding-main) !important;
-    margin-bottom: var(--margin-main) !important;
+    padding: var(--padding-small) !important;
+    margin: var(--margin-small) 0 !important;
     box-shadow: var(--box-shadow-main) !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
-/* =================================================================
-   5. UTILITY CLASSES (فئات مساعدة)
-   ================================================================= */
+/* تحسين جميع الحاويات في Streamlit */
+[data-testid="stVerticalBlock"] > div {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
 
+/* تحسين العنوان المركزي */
 .centered-header {
     text-align: center !important;
-    background: linear-gradient(135deg, var(--color-container-bg), var(--color-background)) !important;
-    border: 2px solid var(--color-accent) !important;
-    border-radius: var(--border-radius-large) !important;
-    padding: var(--padding-large) !important;
-    margin-bottom: var(--margin-large) !important;
-    box-shadow: var(--box-shadow-hover) !important;
+    padding: var(--padding-main) !important;
+    margin-bottom: var(--margin-main) !important;
+    border-radius: var(--border-radius-main) !important;
 }
 
 .centered-header h1 {
-    background: linear-gradient(135deg, var(--color-accent), var(--color-warning));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: var(--font-size-3xl) !important;
     margin-bottom: var(--margin-small) !important;
+    color: var(--color-text-primary) !important;
 }
 
 .centered-header p {
-    color: var(--color-text-muted) !important;
-    font-size: var(--font-size-lg) !important;
-    margin-bottom: var(--margin-main) !important;
+    font-size: var(--font-size-base) !important;
+    color: var(--color-text-secondary) !important;
+    margin-bottom: var(--margin-small) !important;
 }
 
-/* فئات المسافات */
+/* =================================================================
+   5. UTILITY CLASSES (الفئات المساعدة)
+   ================================================================= */
+
+/* المسافات */
 .mt-0 { margin-top: 0 !important; }
 .mt-1 { margin-top: 0.25rem !important; }
 .mt-2 { margin-top: 0.5rem !important; }
-.mt-3 { margin-top: 1rem !important; }
-.mt-4 { margin-top: 1.5rem !important; }
-.mt-5 { margin-top: 3rem !important; }
+.mt-3 { margin-top: 0.75rem !important; }
+.mt-4 { margin-top: 1rem !important; }
+.mt-5 { margin-top: 1.5rem !important; }
 
 .mb-0 { margin-bottom: 0 !important; }
 .mb-1 { margin-bottom: 0.25rem !important; }
 .mb-2 { margin-bottom: 0.5rem !important; }
-.mb-3 { margin-bottom: 1rem !important; }
-.mb-4 { margin-bottom: 1.5rem !important; }
-.mb-5 { margin-bottom: 3rem !important; }
+.mb-3 { margin-bottom: 0.75rem !important; }
+.mb-4 { margin-bottom: 1rem !important; }
+.mb-5 { margin-bottom: 1.5rem !important; }
 
 .p-0 { padding: 0 !important; }
 .p-1 { padding: 0.25rem !important; }
 .p-2 { padding: 0.5rem !important; }
-.p-3 { padding: 1rem !important; }
-.p-4 { padding: 1.5rem !important; }
-.p-5 { padding: 3rem !important; }
+.p-3 { padding: 0.75rem !important; }
+.p-4 { padding: 1rem !important; }
+.p-5 { padding: 1.5rem !important; }
 
-/* فئات الألوان */
+/* الألوان */
 .text-primary { color: var(--color-accent) !important; }
 .text-success { color: var(--color-success) !important; }
 .text-warning { color: var(--color-warning) !important; }
@@ -303,21 +338,19 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
 .text-info { color: var(--color-info) !important; }
 .text-muted { color: var(--color-text-muted) !important; }
 
-/* فئات الخلفية */
 .bg-primary { background-color: var(--color-accent) !important; }
 .bg-success { background-color: var(--color-bg-success) !important; }
 .bg-warning { background-color: var(--color-bg-warning) !important; }
 .bg-danger { background-color: var(--color-bg-danger) !important; }
 .bg-info { background-color: var(--color-bg-info) !important; }
 
-/* فئات الحدود */
 .border { border: 1px solid var(--color-border) !important; }
 .border-primary { border-color: var(--color-accent) !important; }
 .border-success { border-color: var(--color-success) !important; }
 .border-warning { border-color: var(--color-warning) !important; }
 .border-danger { border-color: var(--color-danger) !important; }
 
-/* فئات الحجم */
+/* أحجام الخطوط */
 .text-xs { font-size: var(--font-size-xs) !important; }
 .text-sm { font-size: var(--font-size-sm) !important; }
 .text-base { font-size: var(--font-size-base) !important; }
@@ -326,44 +359,41 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
 .text-2xl { font-size: var(--font-size-2xl) !important; }
 .text-3xl { font-size: var(--font-size-3xl) !important; }
 
-/* فئات الوزن */
+/* أوزان الخطوط */
 .font-light { font-weight: var(--font-weight-light) !important; }
 .font-normal { font-weight: var(--font-weight-normal) !important; }
 .font-medium { font-weight: var(--font-weight-medium) !important; }
 .font-semibold { font-weight: var(--font-weight-semibold) !important; }
 .font-bold { font-weight: var(--font-weight-bold) !important; }
 
-/* فئات المحاذاة */
+/* المحاذاة */
 .text-center { text-align: center !important; }
 .text-right { text-align: right !important; }
 .text-left { text-align: left !important; }
 
 /* =================================================================
-   6. COMPONENT STYLES (أنماط المكونات)
+   6. COMPONENTS (المكونات)
    ================================================================= */
 
-/* بطاقات النتائج */
+/* بطاقات النتائج - تحسين الحجم */
 .result-card {
-    background: linear-gradient(135deg, var(--color-container-bg), var(--color-background)) !important;
-    border: 2px solid var(--color-accent) !important;
+    background: linear-gradient(135deg, var(--color-container-bg), #2a2a3e) !important;
+    border: 1px solid var(--color-border) !important;
     border-radius: var(--border-radius-main) !important;
-    padding: 18px 14px !important;
-    margin-bottom: var(--margin-main) !important;
+    padding: var(--padding-small) !important;
+    margin: var(--margin-small) 0 !important;
     box-shadow: var(--box-shadow-main) !important;
-    transition: all var(--transition-speed) ease-in-out;
-    max-width: 420px;
-    min-width: 220px;
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    transition: all var(--transition-speed) ease-in-out !important;
+    max-width: 100% !important;
+    min-width: 200px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
 .result-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px) !important;
     box-shadow: var(--box-shadow-hover) !important;
-    border-color: var(--color-accent-hover) !important;
+    border-color: var(--color-accent) !important;
 }
 
 .result-card.success {
@@ -381,21 +411,21 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
     background: linear-gradient(135deg, var(--color-bg-danger), var(--color-container-bg)) !important;
 }
 
-/* أزرار مخصصة */
+/* الأزرار المخصصة */
 .custom-button {
     background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover)) !important;
     border: none !important;
     color: white !important;
-    padding: 12px 24px !important;
+    padding: 8px 16px !important;
     border-radius: var(--border-radius-small) !important;
     font-weight: var(--font-weight-semibold) !important;
     cursor: pointer !important;
-    transition: all var(--transition-speed-fast) ease-in-out !important;
-    box-shadow: var(--box-shadow-main) !important;
+    transition: all var(--transition-speed) ease-in-out !important;
+    font-size: var(--font-size-sm) !important;
 }
 
 .custom-button:hover {
-    transform: translateY(-2px) !important;
+    transform: translateY(-1px) !important;
     box-shadow: var(--box-shadow-hover) !important;
     background: linear-gradient(135deg, var(--color-accent-hover), var(--color-accent)) !important;
 }
@@ -405,28 +435,31 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
 }
 
 .custom-button.success {
-    background: linear-gradient(135deg, var(--color-success), #20c997) !important;
+    background: linear-gradient(135deg, var(--color-success), #1e7e34) !important;
 }
 
 .custom-button.warning {
-    background: linear-gradient(135deg, var(--color-warning), #fd7e14) !important;
+    background: linear-gradient(135deg, var(--color-warning), #e0a800) !important;
 }
 
 .custom-button.danger {
-    background: linear-gradient(135deg, var(--color-danger), #e74c3c) !important;
+    background: linear-gradient(135deg, var(--color-danger), #c82333) !important;
 }
 
 /* شريط التقدم */
 .progress-bar {
-    background-color: var(--color-border) !important;
-    border-radius: var(--border-radius-small) !important;
-    overflow: hidden !important;
+    width: 100% !important;
     height: 8px !important;
+    background-color: var(--color-border) !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+    margin: var(--margin-small) 0 !important;
 }
 
 .progress-bar-fill {
-    background: linear-gradient(90deg, var(--color-accent), var(--color-success)) !important;
     height: 100% !important;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover)) !important;
+    border-radius: 4px !important;
     transition: width var(--transition-speed) ease-in-out !important;
 }
 
@@ -437,63 +470,109 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
 /* الأجهزة المحمولة */
 @media (max-width: 768px) {
     :root {
-        --padding-main: 15px;
-        --padding-large: 20px;
-        --margin-main: 15px;
-        --margin-large: 20px;
-        --font-size-4xl: 1.75rem;
-        --font-size-3xl: 1.5rem;
-        --font-size-2xl: 1.25rem;
+        --padding-main: 10px;
+        --padding-small: 8px;
+        --margin-main: 10px;
+        --margin-small: 5px;
+        --font-size-base: 0.85rem;
+        --font-size-sm: 0.8rem;
+        --font-size-lg: 0.95rem;
+        --font-size-xl: 1rem;
+        --font-size-2xl: 1.2rem;
+        --font-size-3xl: 1.4rem;
     }
-    
+
     .centered-header {
-        padding: var(--padding-main) !important;
-        margin-bottom: var(--margin-main) !important;
+        padding: var(--padding-small) !important;
     }
-    
+
     div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
         padding: var(--padding-small) !important;
-        margin-bottom: var(--margin-small) !important;
+        margin: 5px 0 !important;
+        min-width: 150px !important;
+    }
+
+    .result-card {
+        padding: var(--padding-small) !important;
+        min-width: 150px !important;
+    }
+
+    .stButton > button {
+        padding: 6px 12px !important;
+        font-size: var(--font-size-xs) !important;
+    }
+
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input,
+    .stSelectbox > div > div > div {
+        padding: 6px 10px !important;
+        font-size: var(--font-size-xs) !important;
+        min-width: 100px !important;
     }
 }
 
 /* الأجهزة اللوحية */
 @media (min-width: 769px) and (max-width: 1024px) {
     :root {
-        --padding-main: 20px;
-        --padding-large: 25px;
-        --margin-main: 18px;
-        --margin-large: 25px;
+        --padding-main: 12px;
+        --padding-small: 8px;
+        --margin-main: 12px;
+        --margin-small: 6px;
+        --font-size-base: 0.9rem;
+        --font-size-sm: 0.85rem;
+        --font-size-lg: 1rem;
+        --font-size-xl: 1.1rem;
+        --font-size-2xl: 1.3rem;
+        --font-size-3xl: 1.5rem;
     }
 }
 
 /* الشاشات الكبيرة */
 @media (min-width: 1025px) {
     .main > div {
-        max-width: 1400px;
-        margin: 0 auto;
+        max-width: 1400px !important;
+        padding: 15px !important;
     }
 }
 
-/* ضبط الأعمدة لتكون متجاوبة ولا تخرج عن الإطار */
+/* تحسين الأعمدة */
 .stColumns, .stColumn {
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 5px !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
-    max-width: 100vw !important;
-    overflow-x: auto !important;
+    overflow: hidden !important;
 }
 
-/* ضبط الحاويات الداخلية */
 .stContainer, .stContainer > div {
-    max-width: 100vw !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* ضمان عدم خروج البطاقات من الحواف */
+[data-testid="stVerticalBlock"] {
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+[data-testid="stHorizontalBlock"] {
+    max-width: 100% !important;
+    overflow: hidden !important;
 }
 
 /* تحسين البطاقات في الشاشات الصغيرة */
 @media (max-width: 900px) {
     .result-card {
-        max-width: 98vw;
-        min-width: 180px;
-        padding: 10px 6px !important;
+        padding: 8px !important;
+        margin: 5px 0 !important;
+        min-width: 120px !important;
+        max-width: 100% !important;
+    }
+
+    .result-card > div {
+        font-size: var(--font-size-sm) !important;
     }
 }
 
@@ -508,18 +587,20 @@ textarea:focus,
 select:focus {
     outline: 2px solid var(--color-accent) !important;
     outline-offset: 2px !important;
+    border-color: var(--color-accent) !important;
 }
 
-/* تحسين التباين */
+/* تحسين التباين العالي */
 @media (prefers-contrast: high) {
     :root {
-        --color-text-primary: #ffffff;
-        --color-text-secondary: #f0f0f0;
-        --color-border: #666666;
+        --color-border: #ffffff;
+        --color-text-muted: #ffffff;
+        --color-background: #000000;
+        --color-container-bg: #1a1a1a;
     }
 }
 
-/* تحسين الحركة */
+/* تقليل الحركة */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -534,21 +615,21 @@ select:focus {
 
 @media print {
     .main > div {
-        background-color: white !important;
-        color: black !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
-    
+
     div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
-        background-color: white !important;
-        color: black !important;
-        border: 1px solid #ccc !important;
         box-shadow: none !important;
+        border: 1px solid #000 !important;
+        break-inside: avoid !important;
     }
-    
+
     .custom-button {
-        background: #ccc !important;
-        color: black !important;
-        border: 1px solid #999 !important;
+        background: #000 !important;
+        color: #fff !important;
+        border: 1px solid #000 !important;
     }
 }
 
@@ -559,7 +640,7 @@ select:focus {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -569,19 +650,21 @@ select:focus {
 
 @keyframes slideIn {
     from {
-        transform: translateX(-100%);
+        transform: translateX(-20px);
+        opacity: 0;
     }
     to {
         transform: translateX(0);
+        opacity: 1;
     }
 }
 
 @keyframes pulse {
     0%, 100% {
-        opacity: 1;
+        transform: scale(1);
     }
     50% {
-        opacity: 0.7;
+        transform: scale(1.05);
     }
 }
 
@@ -601,13 +684,14 @@ select:focus {
    11. DARK MODE ENHANCEMENTS (تحسينات الوضع المظلم)
    ================================================================= */
 
-/* تحسين الألوان للوضع المظلم */
 @media (prefers-color-scheme: dark) {
     :root {
         --color-background: #0a0a0a;
         --color-container-bg: #1a1a1a;
         --color-border: #333333;
-        --color-border-light: #444444;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #cccccc;
+        --color-text-muted: #999999;
     }
 }
 
@@ -615,29 +699,21 @@ select:focus {
    12. PERFORMANCE OPTIMIZATIONS (تحسينات الأداء)
    ================================================================= */
 
-/* تحسين الأداء للعناصر الكثيرة */
 .large-list {
     contain: layout style paint;
 }
 
-/* تحسين التمرير */
 .smooth-scroll {
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
 }
 
-/* تحسين العرض */
 .will-change {
     will-change: transform, opacity;
 }
 
-/* =================================================================
-   13. CUSTOM SCROLLBAR (شريط التمرير المخصص)
-   ================================================================= */
-
+/* تحسين شريط التمرير */
 ::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -650,11 +726,11 @@ select:focus {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent);
+    background: var(--color-border-light);
 }
 
 /* =================================================================
-   14. LOADING STATES (حالات التحميل)
+   13. LOADING STATES (حالات التحميل)
    ================================================================= */
 
 .loading {

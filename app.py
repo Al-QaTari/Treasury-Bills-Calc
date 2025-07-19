@@ -92,20 +92,21 @@ def display_auction_results(
             session_date_str = str(filtered_df[C.SESSION_DATE_COLUMN_NAME].iloc[0])
 
     st.markdown(
-        f"<h3 style='text-align: center; color: #ffc107;'>{prepare_arabic_text(f'{title} - {session_date_str}')}</h3>",
+        f"<h3 style='text-align: center; color: #ffc107; font-size: 1.2rem; margin: 10px 0;'>{prepare_arabic_text(f'{title} - {session_date_str}')}</h3>",
         unsafe_allow_html=True,
     )
 
     info_with_note = f"{info}<br><small>للشراء يتطلب التواجد في البنك قبل الساعة 10 صباحًا في يوم العطاء.</small>"
     st.markdown(
-        f"""<div style="text-align: center; padding: 0.75rem; background-color: rgba(38, 39, 48, 0.5); 
-            border-radius: 0.5rem; border: 1px solid #3c4049; margin-top: 10px; margin-bottom: 20px;">
+        f"""<div style="text-align: center; padding: 8px; background-color: rgba(38, 39, 48, 0.5); 
+            border-radius: 8px; border: 1px solid #3c4049; margin: 8px 0 15px 0; font-size: 0.85rem;">
             🗓️ {prepare_arabic_text(info_with_note)}
             </div>""",
         unsafe_allow_html=True,
     )
 
-    cols = st.columns(len(expected_tenors))
+    # استخدام columns مع gap أقل
+    cols = st.columns(len(expected_tenors), gap="small")
     for i, tenor in enumerate(expected_tenors):
         with cols[i]:
             label = prepare_arabic_text(f"أجل {tenor} يوم")
@@ -121,11 +122,11 @@ def display_auction_results(
             )
 
             st.markdown(
-                f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 5px; 
-                    padding: 15px; text-align: center; height: 100%; display: flex; flex-direction: column; 
-                    justify-content: center;">
-                    <p style="font-size: 1.1rem; color: #bdc3c7; margin: 0 0 8px 0;">{label}</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #ffffff; margin: 0;">{value}</p>
+                f"""<div style="background-color: #2c3e50; border: 1px solid #4a6fa5; border-radius: 6px; 
+                    padding: 10px; text-align: center; height: 80px; display: flex; flex-direction: column; 
+                    justify-content: center; margin: 5px 0; max-width: 100%; box-sizing: border-box;">
+                    <p style="font-size: 0.9rem; color: #bdc3c7; margin: 0 0 5px 0;">{label}</p>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin: 0;">{value}</p>
                     </div>""",
                 unsafe_allow_html=True,
             )
@@ -250,11 +251,11 @@ def main():
 
     # واجهة المستخدم الرئيسية
     st.markdown(
-        f"""<div class="centered-header" style="background-color: #343a40; padding: 20px 10px; 
-            border-radius: 15px; margin-bottom: 1rem;">
-            <h1 style="color: #ffffff; margin: 0;">{prepare_arabic_text(C.APP_TITLE)}</h1>
-            <p style="color: #aab8c2; margin-top: 10px;">{prepare_arabic_text(C.APP_HEADER)}</p>
-            <div style="margin-top: 15px; font-size: 0.9rem; color: #adb5bd;">
+        f"""<div class="centered-header" style="background-color: #343a40; padding: 15px 8px; 
+            border-radius: 10px; margin-bottom: 0.8rem;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 1.6rem;">{prepare_arabic_text(C.APP_TITLE)}</h1>
+            <p style="color: #aab8c2; margin-top: 8px; font-size: 0.9rem;">{prepare_arabic_text(C.APP_HEADER)}</p>
+            <div style="margin-top: 10px; font-size: 0.8rem; color: #adb5bd;">
                 صُمم بواسطة <span style="font-weight: bold; color: #00bfff;">{C.AUTHOR_NAME}</span>
             </div>
             </div>""",
@@ -262,7 +263,7 @@ def main():
     )
 
     # قسم البيانات والعطاءات
-    col1, col2 = st.columns([2, 1], gap="large")
+    col1, col2 = st.columns([2, 1], gap="medium")
     with col1:
         with st.container(border=True):
             st.subheader("📊 أحدث العوائد المعتمدة")
@@ -371,7 +372,7 @@ def main():
 
     st.divider()
     st.header(prepare_arabic_text(C.PRIMARY_CALCULATOR_TITLE))
-    col_form_main, col_results_main = st.columns(2, gap="large")
+    col_form_main, col_results_main = st.columns(2, gap="medium")
     with col_form_main:
         with st.container(border=True):
             st.subheader(prepare_arabic_text("1. أدخل بيانات الاستثمار"), anchor=False)
@@ -461,19 +462,19 @@ def main():
                 with st.container(border=True):
                     st.markdown(
                         """
-                        <div class="result-card">
+                        <div class="result-card" style="max-width:100%; padding:10px; margin:5px 0;">
                         <div style="width:100%;text-align:center;">
-                        <span style="font-size:1.1rem;color:#adb5bd;">{}</span>
-                        <div style="font-size:2.2rem;color:#ffc107;font-weight:700;line-height:1.2;">{:.3f}%</div>
+                        <span style="font-size:0.9rem;color:#adb5bd;">{}</span>
+                        <div style="font-size:1.8rem;color:#ffc107;font-weight:700;line-height:1.2;">{:.3f}%</div>
                         </div>
-                        <div style="margin:10px 0;"></div>
-                        <div style="background:#495057;padding:8px 0;border-radius:8px;margin-bottom:8px;">
-                        <span style="font-size:1rem;color:#adb5bd;">💰 {}</span>
-                        <div style="font-size:1.5rem;color:#28a745;font-weight:600;">{}</div>
+                        <div style="margin:8px 0;"></div>
+                        <div style="background:#495057;padding:6px 0;border-radius:6px;margin-bottom:6px;">
+                        <span style="font-size:0.85rem;color:#adb5bd;">💰 {}</span>
+                        <div style="font-size:1.2rem;color:#28a745;font-weight:600;">{}</div>
                         </div>
-                        <div style="background:#212529;padding:8px 0;border-radius:8px;">
-                        <span style="font-size:1rem;color:#adb5bd;">{}</span>
-                        <div style="font-size:1.5rem;color:#8ab4f8;font-weight:600;">{}</div>
+                        <div style="background:#212529;padding:6px 0;border-radius:6px;">
+                        <span style="font-size:0.85rem;color:#adb5bd;">{}</span>
+                        <div style="font-size:1.2rem;color:#8ab4f8;font-weight:600;">{}</div>
                         </div>
                         </div>
                         """.format(
@@ -491,10 +492,10 @@ def main():
                         prepare_arabic_text("عرض تفاصيل الحساب الكاملة"), expanded=False
                     ):
                         st.markdown(
-                            f"""<div style="padding: 10px; border-radius: 10px; background-color: #212529;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("سعر الشراء الفعلي (المبلغ المستثمر)")}</span><span style="font-size: 1.2rem; font-weight: 600;">{format_currency(results.purchase_price)}</span></div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("العائد الإجمالي (قبل الضريبة)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: #8ab4f8;">{format_currency(results.gross_return)}</span></div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px;"><span style="font-size: 1.1rem;">{prepare_arabic_text(f"قيمة الضريبة المستحقة ({primary_data['tax_rate']}%)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: #dc3545;">{format_currency(results.tax_amount)}</span></div>
+                            f"""<div style="padding: 8px; border-radius: 8px; background-color: #212529;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #495057;"><span style="font-size: 0.9rem;">{prepare_arabic_text("سعر الشراء الفعلي (المبلغ المستثمر)")}</span><span style="font-size: 1rem; font-weight: 600;">{format_currency(results.purchase_price)}</span></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #495057;"><span style="font-size: 0.9rem;">{prepare_arabic_text("العائد الإجمالي (قبل الضريبة)")}</span><span style="font-size: 1rem; font-weight: 600; color: #8ab4f8;">{format_currency(results.gross_return)}</span></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px;"><span style="font-size: 0.9rem;">{prepare_arabic_text(f"قيمة الضريبة المستحقة ({primary_data['tax_rate']}%)")}</span><span style="font-size: 1rem; font-weight: 600; color: #dc3545;">{format_currency(results.tax_amount)}</span></div>
                                     </div>""",
                             unsafe_allow_html=True,
                         )
@@ -513,7 +514,7 @@ def main():
 
     st.divider()
     st.header(prepare_arabic_text(C.SECONDARY_CALCULATOR_TITLE))
-    col_secondary_form, col_secondary_results = st.columns(2, gap="large")
+    col_secondary_form, col_secondary_results = st.columns(2, gap="medium")
     with col_secondary_form:
         with st.container(border=True):
             st.subheader(
@@ -596,16 +597,16 @@ def main():
             with st.container(border=True):
                 st.markdown(
                     """
-                    <div class="result-card">
+                    <div class="result-card" style="max-width:100%; padding:10px; margin:5px 0;">
                     <div style="width:100%;text-align:center;">
-                    <span style="font-size:1.1rem;color:#adb5bd;">{}</span>
-                    <div style="font-size:2.2rem;color:{};font-weight:700;line-height:1.2;">{}</div>
-                    <div style="font-size:1rem;color:{};margin-top:-5px;">({:.2f}% {})</div>
+                    <span style="font-size:0.9rem;color:#adb5bd;">{}</span>
+                    <div style="font-size:1.8rem;color:{};font-weight:700;line-height:1.2;">{}</div>
+                    <div style="font-size:0.85rem;color:{};margin-top:-5px;">({:.2f}% {})</div>
                     </div>
-                    <div style="margin:10px 0;"></div>
-                    <div style="background:#495057;padding:8px 0;border-radius:8px;margin-bottom:8px;">
-                    <span style="font-size:1rem;color:#adb5bd;">🏷️ {}</span>
-                    <div style="font-size:1.5rem;color:#8ab4f8;font-weight:600;">{}</div>
+                    <div style="margin:8px 0;"></div>
+                    <div style="background:#495057;padding:6px 0;border-radius:6px;margin-bottom:6px;">
+                    <span style="font-size:0.85rem;color:#adb5bd;">🏷️ {}</span>
+                    <div style="font-size:1.2rem;color:#8ab4f8;font-weight:600;">{}</div>
                     </div>
                     </div>
                     """.format(
@@ -623,7 +624,7 @@ def main():
                 st.divider()
                 with st.expander(prepare_arabic_text("عرض تفاصيل الحساب")):
                     st.markdown(
-                        f"""<div style="padding: 10px; border-radius: 10px; background-color: #212529;"><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("سعر الشراء الأصلي")}</span><span style="font-size: 1.2rem; font-weight: 600;">{format_currency(results.original_purchase_price)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("إجمالي الربح (قبل الضريبة)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: {'#28a745' if results.gross_profit >= 0 else '#dc3545'};">{format_currency(results.gross_profit)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px;"><span style="font-size: 1.1rem;">{prepare_arabic_text(f"قيمة الضريبة ({secondary_data['tax_rate']}%)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: #dc3545;">-{format_currency(results.tax_amount, currency_symbol='')}</span></div></div>""",
+                        f"""<div style="padding: 8px; border-radius: 8px; background-color: #212529;"><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #495057;"><span style="font-size: 0.9rem;">{prepare_arabic_text("سعر الشراء الأصلي")}</span><span style="font-size: 1rem; font-weight: 600;">{format_currency(results.original_purchase_price)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #495057;"><span style="font-size: 0.9rem;">{prepare_arabic_text("إجمالي الربح (قبل الضريبة)")}</span><span style="font-size: 1rem; font-weight: 600; color: {'#28a745' if results.gross_profit >= 0 else '#dc3545'};">{format_currency(results.gross_profit)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px;"><span style="font-size: 0.9rem;">{prepare_arabic_text(f"قيمة الضريبة ({secondary_data['tax_rate']}%)")}</span><span style="font-size: 1rem; font-weight: 600; color: #dc3545;">-{format_currency(results.tax_amount, currency_symbol='')}</span></div></div>""",
                         unsafe_allow_html=True,
                     )
             st.info("📊 ستظهر نتائج تحليل البيع هنا.", icon="💡")
@@ -696,7 +697,7 @@ def main():
             )
         )
 
-        fee_col1, fee_col2 = st.columns(2)
+        fee_col1, fee_col2 = st.columns(2, gap="medium")
         with fee_col1:
             total_face_value = st.number_input(
                 prepare_arabic_text("إجمالي القيمة الإسمية لكل أذونك"),
@@ -719,7 +720,7 @@ def main():
         quarterly_deduction = annual_fee / 4
 
         st.markdown(
-            f"""<div style='text-align: center; background-color: #212529; padding: 10px; border-radius: 10px; margin-top:10px;'><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("الخصم الربع سنوي التقريبي")}</p><p style="font-size: 1.5rem; color: #ffc107; font-weight: 600; line-height: 1.2;">{format_currency(quarterly_deduction)}</p></div>""",
+            f"""<div style='text-align: center; background-color: #212529; padding: 8px; border-radius: 8px; margin-top:8px;'><p style="font-size: 0.9rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("الخصم الربع سنوي التقريبي")}</p><p style="font-size: 1.3rem; color: #ffc107; font-weight: 600; line-height: 1.2;">{format_currency(quarterly_deduction)}</p></div>""",
             unsafe_allow_html=True,
         )
 
