@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go  # إضافة هذا السطر
 import time
 from dotenv import load_dotenv
 import sentry_sdk
@@ -162,7 +163,7 @@ def validate_and_calculate_secondary(inputs: dict) -> Optional[dict]:
         return None
 
 
-def create_historical_chart(historical_df: pd.DataFrame) -> Optional[px.Figure]:
+def create_historical_chart(historical_df: pd.DataFrame) -> Optional[go.Figure]:
     """إنشاء الرسم البياني التاريخي مع معالجة محسنة للأخطاء"""
     try:
         if historical_df.empty:
