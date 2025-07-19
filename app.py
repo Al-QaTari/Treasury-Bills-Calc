@@ -457,29 +457,36 @@ def main():
             else:
                 primary_data = st.session_state.primary_results
                 results = primary_data["results_obj"]
+                # استخدام حاوية بحدود واضحة وعرض مرن
                 with st.container(border=True):
-                    st.subheader(
-                        prepare_arabic_text(
-                            f"✨ ملخص استثمارك لأجل {primary_data['tenor']} يوم"
+                    st.markdown(
+                        """
+                        <div class="result-card">
+                        <div style="width:100%;text-align:center;">
+                        <span style="font-size:1.1rem;color:#adb5bd;">{}</span>
+                        <div style="font-size:2.2rem;color:#ffc107;font-weight:700;line-height:1.2;">{:.3f}%</div>
+                        </div>
+                        <div style="margin:10px 0;"></div>
+                        <div style="background:#495057;padding:8px 0;border-radius:8px;margin-bottom:8px;">
+                        <span style="font-size:1rem;color:#adb5bd;">💰 {}</span>
+                        <div style="font-size:1.5rem;color:#28a745;font-weight:600;">{}</div>
+                        </div>
+                        <div style="background:#212529;padding:8px 0;border-radius:8px;">
+                        <span style="font-size:1rem;color:#adb5bd;">{}</span>
+                        <div style="font-size:1.5rem;color:#8ab4f8;font-weight:600;">{}</div>
+                        </div>
+                        </div>
+                        """.format(
+                            prepare_arabic_text(f"النسبة الفعلية للربح (عن الفترة) لأجل {primary_data['tenor']} يوم"),
+                            results.real_profit_percentage,
+                            prepare_arabic_text("صافي الربح المقدم"),
+                            format_currency(results.net_return),
+                            prepare_arabic_text("المبلغ النهائي بعد الأرباح"),
+                            format_currency(results.total_payout + results.net_return),
                         ),
-                        anchor=False,
-                    )
-                    st.markdown(
-                        f"""<div style="text-align: center; margin-bottom: 20px;"><p style="font-size: 1.1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("النسبة الفعلية للربح (عن الفترة)")}</p><p style="font-size: 2.8rem; color: #ffc107; font-weight: 700; line-height: 1.2;">{results.real_profit_percentage:.3f}%</p></div>""",
-                        unsafe_allow_html=True,
-                    )
-                    st.markdown(
-                        f"""<div style="text-align: center; background-color: #495057; padding: 10px; border-radius: 10px; margin-bottom: 15px;"><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("💰 صافي الربح المقدم")} </p><p style="font-size: 1.9rem; color: #28a745; font-weight: 600; line-height: 1.2;">{format_currency(results.net_return)}</p></div>""",
-                        unsafe_allow_html=True,
-                    )
-
-                    final_amount = results.total_payout + results.net_return
-                    st.markdown(
-                        f"""<div style="text-align: center; background-color: #212529; padding: 10px; border-radius: 10px; "><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("المبلغ النهائي بعد الأرباح")}</p><p style="font-size: 1.9rem; color: #8ab4f8; font-weight: 600; line-height: 1.2;">{format_currency(final_amount)}</p></div>""",
                         unsafe_allow_html=True,
                     )
                     st.divider()
-
                     with st.expander(
                         prepare_arabic_text("عرض تفاصيل الحساب الكاملة"), expanded=False
                     ):
@@ -491,15 +498,9 @@ def main():
                                     </div>""",
                             unsafe_allow_html=True,
                         )
-
-                        st.divider()
-
-                    st.markdown(
-                        "<div style='margin-top: 15px;'></div>", unsafe_allow_html=True
-                    )
                     st.info(
                         prepare_arabic_text(
-                            """**💡 آلية صرف العوائد والضريبة:**\n- **العائد الإجمالي (قبل الضريبة)** يُضاف إلى حسابك مقدمًا في يوم الشراء.\n- في نهاية المدة، تسترد **القيمة الإسمية الكاملة**.\n- **قيمة الضريبة** يتم خصمها من حسابك في تاريخ الاستحقاق. **لذا، يجب التأكد من وجود هذا المبلغ في حسابك لتجنب أي  خصم من المبلغ الأساسي.**"""
+                            "💡 آلية صرف العوائد والضريبة: العائد الإجمالي (قبل الضريبة) يُضاف إلى حسابك مقدمًا في يوم الشراء. في نهاية المدة، تسترد القيمة الإسمية الكاملة. قيمة الضريبة يتم خصمها من حسابك في تاريخ الاستحقاق. لذا، يجب التأكد من وجود هذا المبلغ في حسابك لتجنب أي خصم من المبلغ الأساسي."
                         ),
                         icon="💡",
                     )
@@ -593,46 +594,39 @@ def main():
             secondary_data = st.session_state.secondary_results
             results = secondary_data["results_obj"]
             with st.container(border=True):
-                st.subheader(
-                    prepare_arabic_text("✨ تحليل سعر البيع الثانوي"), anchor=False
-                )
-                if results.net_profit >= 0:
-                    st.success(
-                        f"البيع الآن يعتبر مربحًا. ستحقق ربحًا صافيًا قدره {format_currency(results.net_profit)}.",
-                        icon="✅",
-                    )
-                else:
-                    st.warning(
-                        f"البيع الآن سيحقق خسارة. ستبلغ خسارتك الصافية {format_currency(abs(results.net_profit))}.",
-                        icon="⚠️",
-                    )
-                st.divider()
-                profit_color = "#0ac135" if results.net_profit >= 0 else "#db2b3c"
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown(
-                        f"""<div style="text-align: center; background-color: #495057; padding: 10px; border-radius: 10px; height: 100%;"><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("🏷️ سعر البيع الفعلي")}</p><p style="font-size: 1.9rem; color: #8ab4f8; font-weight: 600; line-height: 1.2;">{format_currency(results.sale_price)}</p></div>""",
-                        unsafe_allow_html=True,
-                    )
-                with col2:
-                    st.markdown(
-                        f"""<div style="text-align: center; background-color: #495057; padding: 10px; border-radius: 10px; height: 100%;"><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("💰 صافي الربح / الخسارة")}</p><p style="font-size: 1.9rem; color: {profit_color}; font-weight: 600; line-height: 1.2;">{format_currency(results.net_profit)}</p><p style="font-size: 1rem; color: {profit_color}; margin-top: -5px;">({results.period_yield:.2f}% {prepare_arabic_text("عن فترة الاحتفاظ")})</p></div>""",
-                        unsafe_allow_html=True,
-                    )
                 st.markdown(
-                    "<div style='margin-top: 15px;'></div>", unsafe_allow_html=True
+                    """
+                    <div class="result-card">
+                    <div style="width:100%;text-align:center;">
+                    <span style="font-size:1.1rem;color:#adb5bd;">{}</span>
+                    <div style="font-size:2.2rem;color:{};font-weight:700;line-height:1.2;">{}</div>
+                    <div style="font-size:1rem;color:{};margin-top:-5px;">({:.2f}% {})</div>
+                    </div>
+                    <div style="margin:10px 0;"></div>
+                    <div style="background:#495057;padding:8px 0;border-radius:8px;margin-bottom:8px;">
+                    <span style="font-size:1rem;color:#adb5bd;">🏷️ {}</span>
+                    <div style="font-size:1.5rem;color:#8ab4f8;font-weight:600;">{}</div>
+                    </div>
+                    </div>
+                    """.format(
+                        prepare_arabic_text("💰 صافي الربح / الخسارة"),
+                        "#0ac135" if results.net_profit >= 0 else "#db2b3c",
+                        format_currency(results.net_profit),
+                        "#0ac135" if results.net_profit >= 0 else "#db2b3c",
+                        results.period_yield,
+                        prepare_arabic_text("عن فترة الاحتفاظ"),
+                        prepare_arabic_text("سعر البيع الفعلي"),
+                        format_currency(results.sale_price),
+                    ),
+                    unsafe_allow_html=True,
                 )
+                st.divider()
                 with st.expander(prepare_arabic_text("عرض تفاصيل الحساب")):
                     st.markdown(
                         f"""<div style="padding: 10px; border-radius: 10px; background-color: #212529;"><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("سعر الشراء الأصلي")}</span><span style="font-size: 1.2rem; font-weight: 600;">{format_currency(results.original_purchase_price)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #495057;"><span style="font-size: 1.1rem;">{prepare_arabic_text("إجمالي الربح (قبل الضريبة)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: {'#28a745' if results.gross_profit >= 0 else '#dc3545'};">{format_currency(results.gross_profit)}</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 5px;"><span style="font-size: 1.1rem;">{prepare_arabic_text(f"قيمة الضريبة ({secondary_data['tax_rate']}%)")}</span><span style="font-size: 1.2rem; font-weight: 600; color: #dc3545;">-{format_currency(results.tax_amount, currency_symbol='')}</span></div></div>""",
                         unsafe_allow_html=True,
                     )
-
-                    st.divider()
-
-        else:
-            with st.container(border=True):
-                st.info("📊 ستظهر نتائج تحليل البيع هنا.", icon="💡")
+            st.info("📊 ستظهر نتائج تحليل البيع هنا.", icon="💡")
 
     st.divider()
     st.header(prepare_arabic_text("📈 تطور العائد تاريخيًا"))
