@@ -1,29 +1,88 @@
 /* =================================================================
+   🎨 Treasury Calculator - Enhanced CSS Styles
+   =================================================================
+   
+   تحسينات النسخة الجديدة:
+   - تصميم متجاوب محسن
+   - تحسين إمكانية الوصول
+   - ألوان وظلال محسنة
+   - تحسين الأداء
+   - دعم أفضل للغة العربية
+   ================================================================= */
+
+/* =================================================================
    1. ROOT VARIABLES (المتغيرات الأساسية)
    ================================================================= */
 :root {
-    /* الألوان */
-    --primary-font: 'Cairo', sans-serif;
+    /* الألوان الأساسية */
+    --primary-font: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --color-background: #0e1117;
     --color-container-bg: #1a1a2e;
     --color-text-primary: #f0f2f5;
     --color-text-secondary: #e8e8e8;
+    --color-text-muted: #adb5bd;
     --color-accent: #3b82f6;
+    --color-accent-hover: #2563eb;
     --color-border: #495057;
-
+    --color-border-light: #6c757d;
+    
+    /* ألوان الحالة */
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --color-info: #17a2b8;
+    
+    /* ألوان الخلفية */
+    --color-bg-success: rgba(40, 167, 69, 0.1);
+    --color-bg-warning: rgba(255, 193, 7, 0.1);
+    --color-bg-danger: rgba(220, 53, 69, 0.1);
+    --color-bg-info: rgba(23, 162, 184, 0.1);
+    
     /* مسافات وحدود وظلال */
     --border-radius-main: 15px;
+    --border-radius-small: 8px;
+    --border-radius-large: 20px;
     --padding-main: 25px;
+    --padding-small: 15px;
+    --padding-large: 35px;
+    --margin-main: 20px;
+    --margin-small: 10px;
+    --margin-large: 30px;
     --box-shadow-main: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --box-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.25);
+    --box-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 
     /* سرعات الانتقال */
     --transition-speed: 0.3s;
+    --transition-speed-fast: 0.15s;
+    --transition-speed-slow: 0.5s;
+    
+    /* أحجام الخطوط */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    /* أوزان الخطوط */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
 }
-
 
 /* =================================================================
    2. GLOBAL STYLES (الأنماط العامة)
    ================================================================= */
+* {
+    box-sizing: border-box;
+}
+
 html, body {
     direction: rtl;
     font-family: var(--primary-font);
@@ -31,34 +90,116 @@ html, body {
     color: var(--color-text-primary);
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    line-height: 1.6;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
 }
 
+/* تحسين الأداء */
 *, *::before, *::after {
     box-sizing: inherit;
 }
 
 /* لجعل Streamlit يتوافق مع RTL والتصميم العام */
-[class*="st-"], button, input, textarea, select {
+[class*="st-"], 
+button, 
+input, 
+textarea, 
+select,
+.stButton > button,
+.stSelectbox > div > div,
+.stNumberInput > div > div {
     direction: rtl !important;
     font-family: var(--primary-font) !important;
+    border-radius: var(--border-radius-small) !important;
+    transition: all var(--transition-speed-fast) ease-in-out !important;
 }
 
+/* تحسين أزرار Streamlit */
+.stButton > button {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover)) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: var(--font-weight-semibold) !important;
+    padding: 12px 24px !important;
+    box-shadow: var(--box-shadow-main) !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--box-shadow-hover) !important;
+    background: linear-gradient(135deg, var(--color-accent-hover), var(--color-accent)) !important;
+}
+
+.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* تحسين حقول الإدخال */
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stSelectbox > div > div > div {
+    background-color: var(--color-container-bg) !important;
+    border: 2px solid var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+    padding: 12px 16px !important;
+    font-size: var(--font-size-base) !important;
+}
+
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stSelectbox > div > div > div:focus {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    outline: none !important;
+}
 
 /* =================================================================
    3. TYPOGRAPHY (الخطوط)
    ================================================================= */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
     margin-top: 0;
+    margin-bottom: var(--margin-small);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--margin-main);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--margin-small);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--margin-small);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--margin-small);
 }
 
 p, span, label {
     color: var(--color-text-secondary);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
+    margin-bottom: var(--margin-small);
 }
 
+/* تحسين النصوص العربية */
+.arabic-text {
+    font-family: var(--primary-font);
+    direction: rtl;
+    text-align: right;
+}
 
 /* =================================================================
    4. LAYOUT & COMPONENTS (التخطيط والمكونات)
@@ -67,6 +208,7 @@ p, span, label {
 /* خلفية التطبيق */
 .main > div {
     background-color: var(--color-background);
+    min-height: 100vh;
 }
 
 /* تنسيق الحاويات الداخلية (blocks) */
@@ -77,14 +219,31 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[da
     border-radius: var(--border-radius-main) !important;
     padding: var(--padding-main) !important;
     box-shadow: var(--box-shadow-main) !important;
-    transition: background-color var(--transition-speed);
+    transition: all var(--transition-speed) ease-in-out;
+    margin-bottom: var(--margin-main);
+}
+
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:hover {
+    box-shadow: var(--box-shadow-hover) !important;
+    transform: translateY(-2px);
 }
 
 /* محاذاة الأعمدة بشكل مرن */
 div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
     vertical-align: top;
+    display: flex;
+    flex-direction: column;
 }
 
+/* تحسين الحاويات */
+.stContainer {
+    background-color: var(--color-container-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--border-radius-main) !important;
+    padding: var(--padding-main) !important;
+    margin-bottom: var(--margin-main) !important;
+    box-shadow: var(--box-shadow-main) !important;
+}
 
 /* =================================================================
    5. UTILITY CLASSES (فئات مساعدة)
@@ -92,11 +251,404 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
 
 .centered-header {
     text-align: center !important;
+    background: linear-gradient(135deg, var(--color-container-bg), var(--color-background)) !important;
+    border: 2px solid var(--color-accent) !important;
+    border-radius: var(--border-radius-large) !important;
+    padding: var(--padding-large) !important;
+    margin-bottom: var(--margin-large) !important;
+    box-shadow: var(--box-shadow-hover) !important;
 }
 
-.mt-2 { margin-top: 0.5rem !important; }
-.mt-4 { margin-top: 1rem !important; }
+.centered-header h1 {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-warning));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--margin-small) !important;
+}
 
-.text-accent {
-    color: var(--color-accent) !important;
+.centered-header p {
+    color: var(--color-text-muted) !important;
+    font-size: var(--font-size-lg) !important;
+    margin-bottom: var(--margin-main) !important;
+}
+
+/* فئات المسافات */
+.mt-0 { margin-top: 0 !important; }
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mt-5 { margin-top: 3rem !important; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mb-5 { margin-bottom: 3rem !important; }
+
+.p-0 { padding: 0 !important; }
+.p-1 { padding: 0.25rem !important; }
+.p-2 { padding: 0.5rem !important; }
+.p-3 { padding: 1rem !important; }
+.p-4 { padding: 1.5rem !important; }
+.p-5 { padding: 3rem !important; }
+
+/* فئات الألوان */
+.text-primary { color: var(--color-accent) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-info { color: var(--color-info) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+
+/* فئات الخلفية */
+.bg-primary { background-color: var(--color-accent) !important; }
+.bg-success { background-color: var(--color-bg-success) !important; }
+.bg-warning { background-color: var(--color-bg-warning) !important; }
+.bg-danger { background-color: var(--color-bg-danger) !important; }
+.bg-info { background-color: var(--color-bg-info) !important; }
+
+/* فئات الحدود */
+.border { border: 1px solid var(--color-border) !important; }
+.border-primary { border-color: var(--color-accent) !important; }
+.border-success { border-color: var(--color-success) !important; }
+.border-warning { border-color: var(--color-warning) !important; }
+.border-danger { border-color: var(--color-danger) !important; }
+
+/* فئات الحجم */
+.text-xs { font-size: var(--font-size-xs) !important; }
+.text-sm { font-size: var(--font-size-sm) !important; }
+.text-base { font-size: var(--font-size-base) !important; }
+.text-lg { font-size: var(--font-size-lg) !important; }
+.text-xl { font-size: var(--font-size-xl) !important; }
+.text-2xl { font-size: var(--font-size-2xl) !important; }
+.text-3xl { font-size: var(--font-size-3xl) !important; }
+
+/* فئات الوزن */
+.font-light { font-weight: var(--font-weight-light) !important; }
+.font-normal { font-weight: var(--font-weight-normal) !important; }
+.font-medium { font-weight: var(--font-weight-medium) !important; }
+.font-semibold { font-weight: var(--font-weight-semibold) !important; }
+.font-bold { font-weight: var(--font-weight-bold) !important; }
+
+/* فئات المحاذاة */
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-left { text-align: left !important; }
+
+/* =================================================================
+   6. COMPONENT STYLES (أنماط المكونات)
+   ================================================================= */
+
+/* بطاقات النتائج */
+.result-card {
+    background: linear-gradient(135deg, var(--color-container-bg), var(--color-background)) !important;
+    border: 2px solid var(--color-accent) !important;
+    border-radius: var(--border-radius-main) !important;
+    padding: var(--padding-main) !important;
+    margin-bottom: var(--margin-main) !important;
+    box-shadow: var(--box-shadow-main) !important;
+    transition: all var(--transition-speed) ease-in-out;
+}
+
+.result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-hover) !important;
+    border-color: var(--color-accent-hover) !important;
+}
+
+.result-card.success {
+    border-color: var(--color-success) !important;
+    background: linear-gradient(135deg, var(--color-bg-success), var(--color-container-bg)) !important;
+}
+
+.result-card.warning {
+    border-color: var(--color-warning) !important;
+    background: linear-gradient(135deg, var(--color-bg-warning), var(--color-container-bg)) !important;
+}
+
+.result-card.danger {
+    border-color: var(--color-danger) !important;
+    background: linear-gradient(135deg, var(--color-bg-danger), var(--color-container-bg)) !important;
+}
+
+/* أزرار مخصصة */
+.custom-button {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover)) !important;
+    border: none !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: var(--border-radius-small) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    cursor: pointer !important;
+    transition: all var(--transition-speed-fast) ease-in-out !important;
+    box-shadow: var(--box-shadow-main) !important;
+}
+
+.custom-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--box-shadow-hover) !important;
+    background: linear-gradient(135deg, var(--color-accent-hover), var(--color-accent)) !important;
+}
+
+.custom-button:active {
+    transform: translateY(0) !important;
+}
+
+.custom-button.success {
+    background: linear-gradient(135deg, var(--color-success), #20c997) !important;
+}
+
+.custom-button.warning {
+    background: linear-gradient(135deg, var(--color-warning), #fd7e14) !important;
+}
+
+.custom-button.danger {
+    background: linear-gradient(135deg, var(--color-danger), #e74c3c) !important;
+}
+
+/* شريط التقدم */
+.progress-bar {
+    background-color: var(--color-border) !important;
+    border-radius: var(--border-radius-small) !important;
+    overflow: hidden !important;
+    height: 8px !important;
+}
+
+.progress-bar-fill {
+    background: linear-gradient(90deg, var(--color-accent), var(--color-success)) !important;
+    height: 100% !important;
+    transition: width var(--transition-speed) ease-in-out !important;
+}
+
+/* =================================================================
+   7. RESPONSIVE DESIGN (التصميم المتجاوب)
+   ================================================================= */
+
+/* الأجهزة المحمولة */
+@media (max-width: 768px) {
+    :root {
+        --padding-main: 15px;
+        --padding-large: 20px;
+        --margin-main: 15px;
+        --margin-large: 20px;
+        --font-size-4xl: 1.75rem;
+        --font-size-3xl: 1.5rem;
+        --font-size-2xl: 1.25rem;
+    }
+    
+    .centered-header {
+        padding: var(--padding-main) !important;
+        margin-bottom: var(--margin-main) !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
+        padding: var(--padding-small) !important;
+        margin-bottom: var(--margin-small) !important;
+    }
+}
+
+/* الأجهزة اللوحية */
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --padding-main: 20px;
+        --padding-large: 25px;
+        --margin-main: 18px;
+        --margin-large: 25px;
+    }
+}
+
+/* الشاشات الكبيرة */
+@media (min-width: 1025px) {
+    .main > div {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* =================================================================
+   8. ACCESSIBILITY (إمكانية الوصول)
+   ================================================================= */
+
+/* تحسين التركيز */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid var(--color-accent) !important;
+    outline-offset: 2px !important;
+}
+
+/* تحسين التباين */
+@media (prefers-contrast: high) {
+    :root {
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #f0f0f0;
+        --color-border: #666666;
+    }
+}
+
+/* تحسين الحركة */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =================================================================
+   9. PRINT STYLES (أنماط الطباعة)
+   ================================================================= */
+
+@media print {
+    .main > div {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+    
+    .custom-button {
+        background: #ccc !important;
+        color: black !important;
+        border: 1px solid #999 !important;
+    }
+}
+
+/* =================================================================
+   10. ANIMATIONS (الحركات)
+   ================================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* =================================================================
+   11. DARK MODE ENHANCEMENTS (تحسينات الوضع المظلم)
+   ================================================================= */
+
+/* تحسين الألوان للوضع المظلم */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background: #0a0a0a;
+        --color-container-bg: #1a1a1a;
+        --color-border: #333333;
+        --color-border-light: #444444;
+    }
+}
+
+/* =================================================================
+   12. PERFORMANCE OPTIMIZATIONS (تحسينات الأداء)
+   ================================================================= */
+
+/* تحسين الأداء للعناصر الكثيرة */
+.large-list {
+    contain: layout style paint;
+}
+
+/* تحسين التمرير */
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* تحسين العرض */
+.will-change {
+    will-change: transform, opacity;
+}
+
+/* =================================================================
+   13. CUSTOM SCROLLBAR (شريط التمرير المخصص)
+   ================================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+/* =================================================================
+   14. LOADING STATES (حالات التحميل)
+   ================================================================= */
+
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
 }

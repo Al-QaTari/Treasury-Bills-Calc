@@ -9,7 +9,7 @@ import logging
 from pydantic import ValidationError
 from datetime import datetime, timedelta
 import pytz
-from typing import Tuple
+from typing import Tuple, Optional
 
 # استيراد المكونات
 from utils import setup_logging, prepare_arabic_text, load_css, format_currency
@@ -27,20 +27,27 @@ load_dotenv()
 sentry_dsn = os.environ.get("SENTRY_DSN")
 if sentry_dsn:
     sentry_sdk.init(
-        dsn=sentry_dsn, traces_sample_rate=1.0, environment="production-streamlit"
+        dsn=sentry_dsn, 
+        traces_sample_rate=1.0, 
+        environment="production-streamlit",
+        profiles_sample_rate=1.0
     )
 
 
 @st.cache_resource
 def get_db_manager() -> HistoricalDataStore:
-    """تهيئة مدير قاعدة البيانات"""
-    if os.environ.get("POSTGRES_URI"):
-        logging.info("Using PostgresDBManager")
-        return PostgresDBManager()
-    else:
+    """تهيئة مدير قاعدة البيانات مع دعم PostgreSQL و SQLite"""
+    try:
+        if os.environ.get("POSTGRES_URI"):
+            logging.info("Using PostgresDBManager")
+            return PostgresDBManager()
+        else:
+            from db_manager import SQLiteDBManager
+            logging.warning("Falling back to SQLiteDBManager")
+            return SQLiteDBManager()
+    except Exception as e:
+        logging.error(f"Failed to initialize database manager: {e}")
         from db_manager import SQLiteDBManager
-
-        logging.warning("Falling back to SQLiteDBManager")
         return SQLiteDBManager()
 
 
@@ -74,7 +81,7 @@ def format_countdown(time_delta: timedelta) -> str:
 def display_auction_results(
     title: str, info: str, df: pd.DataFrame, expected_tenors: list
 ):
-    """عرض نتائج العطاءات بطريقة منظمة"""
+    """عرض نتائج العطاءات بطريقة منظمة ومحسنة"""
     session_date_str = prepare_arabic_text("تاريخ غير محدد")
     filtered_df = pd.DataFrame()
 
@@ -123,8 +130,8 @@ def display_auction_results(
             )
 
 
-def validate_and_calculate_primary(inputs: dict):
-    """التحقق من صحة وحساب العائد الأساسي"""
+def validate_and_calculate_primary(inputs: dict) -> Optional[dict]:
+    """التحقق من صحة وحساب العائد الأساسي مع معالجة محسنة للأخطاء"""
     try:
         user_inputs = PrimaryYieldInput(**inputs)
         return calculate_primary_yield(user_inputs)
@@ -134,11 +141,13 @@ def validate_and_calculate_primary(inputs: dict):
     except Exception as e:
         st.error(f"حدث خطأ غير متوقع: {str(e)}")
         logging.exception("Error in primary yield calculation")
+        if sentry_dsn:
+            sentry_sdk.capture_exception(e)
         return None
 
 
-def validate_and_calculate_secondary(inputs: dict):
-    """التحقق من صحة وحساب البيع الثانوي"""
+def validate_and_calculate_secondary(inputs: dict) -> Optional[dict]:
+    """التحقق من صحة وحساب البيع الثانوي مع معالجة محسنة للأخطاء"""
     try:
         user_inputs = SecondarySaleInput(**inputs)
         return analyze_secondary_sale(user_inputs)
@@ -148,32 +157,86 @@ def validate_and_calculate_secondary(inputs: dict):
     except Exception as e:
         st.error(f"حدث خطأ غير متوقع: {str(e)}")
         logging.exception("Error in secondary sale calculation")
+        if sentry_dsn:
+            sentry_sdk.capture_exception(e)
+        return None
+
+
+def create_historical_chart(historical_df: pd.DataFrame) -> Optional[px.Figure]:
+    """إنشاء الرسم البياني التاريخي مع معالجة محسنة للأخطاء"""
+    try:
+        if historical_df.empty:
+            return None
+            
+        available_tenors = sorted(historical_df[C.TENOR_COLUMN_NAME].unique())
+        if not available_tenors:
+            return None
+            
+        fig = px.line(
+            historical_df,
+            x=C.DATE_COLUMN_NAME,
+            y=C.YIELD_COLUMN_NAME,
+            color=C.TENOR_COLUMN_NAME,
+            markers=True,
+            labels={
+                C.DATE_COLUMN_NAME: "تاريخ التحديث",
+                C.YIELD_COLUMN_NAME: "نسبة العائد (%)",
+                C.TENOR_COLUMN_NAME: "الأجل (يوم)",
+            },
+            title=prepare_arabic_text(
+                "التغير في متوسط العائد المرجح لأذون الخزانة"
+            ),
+        )
+        fig.update_layout(
+            legend_title_text=prepare_arabic_text("الأجل"),
+            title_x=0.5,
+            template="plotly_dark",
+            xaxis=dict(tickformat="%d-%m-%Y"),
+            height=500,
+        )
+        return fig
+    except Exception as e:
+        logging.error(f"Error creating historical chart: {e}")
         return None
 
 
 def main():
+    """الدالة الرئيسية للتطبيق مع تحسينات شاملة"""
     # تهيئة الصفحة
     st.set_page_config(
         layout="wide",
         page_title=prepare_arabic_text("حاسبة أذون الخزانة"),
         page_icon="🏦",
+        initial_sidebar_state="collapsed"
     )
     load_css(os.path.join(os.path.dirname(__file__), "css", "style.css"))
 
     # تهيئة حالة الجلسة
     if "update_successful" not in st.session_state:
         st.session_state.update_successful = False
+    if "last_error" not in st.session_state:
+        st.session_state.last_error = None
 
-    db_adapter = get_db_manager()
-    scraper_adapter = CbeScraper()
+    try:
+        db_adapter = get_db_manager()
+        scraper_adapter = CbeScraper()
+    except Exception as e:
+        st.error(f"فشل في تهيئة قاعدة البيانات: {str(e)}")
+        logging.exception("Database initialization failed")
+        return
 
     if "df_data" not in st.session_state:
-        st.session_state.df_data, st.session_state.last_update = (
-            db_adapter.load_latest_data()
-        )
-        st.session_state.historical_df = db_adapter.load_all_historical_data()
-        st.session_state.primary_results = None
-        st.session_state.secondary_results = None
+        try:
+            st.session_state.df_data, st.session_state.last_update = (
+                db_adapter.load_latest_data()
+            )
+            st.session_state.historical_df = db_adapter.load_all_historical_data()
+            st.session_state.primary_results = None
+            st.session_state.secondary_results = None
+        except Exception as e:
+            st.error(f"فشل في تحميل البيانات: {str(e)}")
+            logging.exception("Data loading failed")
+            return
 
     # استخراج البيانات من حالة الجلسة
     data_df = st.session_state.df_data
@@ -585,28 +648,11 @@ def main():
             chart_df = historical_df[
                 historical_df[C.TENOR_COLUMN_NAME].isin(selected_tenors)
             ]
-            fig = px.line(
-                chart_df,
-                x=C.DATE_COLUMN_NAME,
-                y=C.YIELD_COLUMN_NAME,
-                color=C.TENOR_COLUMN_NAME,
-                markers=True,
-                labels={
-                    C.DATE_COLUMN_NAME: "تاريخ التحديث",
-                    C.YIELD_COLUMN_NAME: "نسبة العائد (%)",
-                    C.TENOR_COLUMN_NAME: "الأجل (يوم)",
-                },
-                title=prepare_arabic_text(
-                    "التغير في متوسط العائد المرجح لأذون الخزانة"
-                ),
-            )
-            fig.update_layout(
-                legend_title_text=prepare_arabic_text("الأجل"),
-                title_x=0.5,
-                template="plotly_dark",
-                xaxis=dict(tickformat="%d-%m-%Y"),
-            )
-            st.plotly_chart(fig, use_container_width=True)
+            fig = create_historical_chart(chart_df)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.error("فشل في إنشاء الرسم البياني")
         else:
             st.info(
                 prepare_arabic_text(
