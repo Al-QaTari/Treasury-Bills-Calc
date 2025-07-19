@@ -200,6 +200,11 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[da
     box-shadow: var(--box-shadow-main) !important;
     transition: all var(--transition-speed) ease-in-out;
     margin-bottom: var(--margin-main);
+    min-height: 120px !important;
+    min-width: 200px !important;
+    overflow: visible !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
 }
 
 div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:hover {
@@ -222,6 +227,147 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
     padding: var(--padding-main) !important;
     margin-bottom: var(--margin-main) !important;
     box-shadow: var(--box-shadow-main) !important;
+}
+
+/* تحسين البطاقات التي تحتوي على أرقام ونسب مئوية */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has(span),
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has(p) {
+    min-height: 140px !important;
+    min-width: 250px !important;
+    padding: 30px 25px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+
+/* تحسين عرض النصوص والأرقام داخل البطاقات */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div span,
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div p {
+    font-size: var(--font-size-lg) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-text-primary) !important;
+    margin: 5px 0 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+    line-height: 1.4 !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+/* تحسين عرض الأرقام الكبيرة */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div span:contains("91"),
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div p:contains("91") {
+    font-size: var(--font-size-2xl) !important;
+    font-weight: var(--font-weight-bold) !important;
+    color: var(--color-accent) !important;
+}
+
+/* تحسين عرض النسب المئوية */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div span:contains("%"),
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div p:contains("%") {
+    font-size: var(--font-size-xl) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-success) !important;
+}
+
+/* تحسين عام لجميع البطاقات - زيادة الحجم */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
+    min-height: 150px !important;
+    min-width: 280px !important;
+    padding: 35px 30px !important;
+    margin: 15px !important;
+    box-sizing: border-box !important;
+}
+
+/* تحسين عرض الأرقام والنصوص الطويلة */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div * {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+}
+
+/* تحسين خاص للبطاقات التي تحتوي على أرقام */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]) {
+    min-height: 160px !important;
+    min-width: 300px !important;
+    padding: 40px 35px !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* تحسين خاص لبطاقات مدة الاستحقاق والإذن الأصلي */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]):has-text("مدة الاستحقاق"),
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]):has-text("الإذن الأصلي") {
+    min-height: 180px !important;
+    min-width: 350px !important;
+    padding: 45px 40px !important;
+    font-size: var(--font-size-lg) !important;
+}
+
+/* تحسين عرض الأرقام في بطاقات مدة الاستحقاق */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has-text("91") {
+    min-height: 180px !important;
+    min-width: 350px !important;
+    padding: 45px 40px !important;
+}
+
+/* تحسين عرض النسب المئوية */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has-text("27.558%") {
+    min-height: 180px !important;
+    min-width: 350px !important;
+    padding: 45px 40px !important;
+}
+
+/* تحسين عام لجميع البطاقات مع أرقام */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]) [class*="stMarkdown"] {
+    font-size: var(--font-size-lg) !important;
+    line-height: 1.6 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+/* تحسين عام لجميع البطاقات - ضمان عرض كامل المحتوى */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div {
+    overflow: visible !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+    white-space: normal !important;
+    text-overflow: unset !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+
+/* تحسين خاص للبطاقات التي تحتوي على أرقام كبيرة */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]):has-text("91"),
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div:has([class*="stMarkdown"]):has-text("27.558%") {
+    min-height: 200px !important;
+    min-width: 400px !important;
+    padding: 50px 45px !important;
+    font-size: var(--font-size-xl) !important;
+    line-height: 1.8 !important;
+}
+
+/* تحسين عرض جميع النصوص داخل البطاقات */
+div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div * {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    white-space: normal !important;
+    text-overflow: unset !important;
 }
 
 
