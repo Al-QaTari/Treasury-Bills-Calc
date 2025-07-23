@@ -46,8 +46,8 @@ def get_db_manager() -> HistoricalDataStore:
 
 def get_next_auction_date(today: datetime) -> Tuple[datetime, str]:
     """حساب تاريخ ومعلومات العطاء القادم"""
-    days_to_thursday = (4 - today.isoweekday() + 7) % 7 or 7
-    days_to_sunday = (7 - today.isoweekday() + 7) % 7 or 7
+    days_to_thursday = (3 - today.weekday() + 7) % 7
+    days_to_sunday = (6 - today.weekday() + 7) % 7
 
     next_thursday = today + timedelta(days=days_to_thursday)
     next_sunday = today + timedelta(days=days_to_sunday)
@@ -62,12 +62,17 @@ def get_next_auction_date(today: datetime) -> Tuple[datetime, str]:
 def format_countdown(time_delta: timedelta) -> str:
     """تنسيق الوقت المتبقي للعطاء القادم"""
     parts = []
-    if time_delta.days > 0:
-        parts.append(f"{time_delta.days} يوم")
-    if time_delta.seconds // 3600 > 0:
-        parts.append(f"{time_delta.seconds // 3600} ساعة")
-    if time_delta.seconds % 3600 // 60 > 0 and not parts:
-        parts.append(f"{time_delta.seconds % 3600 // 60} دقيقة")
+    days = time_delta.days
+    hours = time_delta.seconds // 3600
+    minutes = (time_delta.seconds % 3600) // 60
+
+    if days > 0:
+        parts.append(f"{days} يوم")
+    if hours > 0:
+        parts.append(f"{hours} ساعة")
+    if minutes > 0 and not parts:  # عرض الدقائق فقط إذا لم تكن هناك أيام أو ساعات
+        parts.append(f"{minutes} دقيقة")
+
     return " و ".join(parts) if parts else "قريباً جداً"
 
 
@@ -81,6 +86,7 @@ def display_auction_results(
     if not df.empty and C.TENOR_COLUMN_NAME in df.columns:
         filtered_df = df[df[C.TENOR_COLUMN_NAME].isin(expected_tenors)]
         if not filtered_df.empty:
+            # استخدام أحدث تاريخ جلسة متوفر في البيانات المصفاة
             session_date_str = str(filtered_df[C.SESSION_DATE_COLUMN_NAME].iloc[0])
 
     st.markdown(
@@ -167,13 +173,50 @@ def main():
     db_adapter = get_db_manager()
     scraper_adapter = CbeScraper()
 
-    if "df_data" not in st.session_state:
-        st.session_state.df_data, st.session_state.last_update = (
-            db_adapter.load_latest_data()
-        )
-        st.session_state.historical_df = db_adapter.load_all_historical_data()
+    # --- START: تعديل منطق تحميل البيانات ---
+    # تم تغيير هذا الجزء بالكامل لحل مشكلة الاستعلامات المتتالية
+    if "historical_df" not in st.session_state:
+        # الخطوة 1: استعلام واحد فقط لجلب كل البيانات التاريخية
+        historical_data = db_adapter.load_all_historical_data()
+        st.session_state.historical_df = historical_data
+
+        # الخطوة 2: استنتاج أحدث البيانات ووقت التحديث من البيانات التي تم جلبها بالفعل
+        if not historical_data.empty:
+            # التأكد من أن عمود التاريخ من نوع datetime للقيام بالمقارنات
+            historical_data[C.DATE_COLUMN_NAME] = pd.to_datetime(
+                historical_data[C.DATE_COLUMN_NAME]
+            )
+
+            # استخلاص أحدث البيانات لكل أجل باستخدام Pandas
+            latest_indices = historical_data.loc[
+                historical_data.groupby(C.TENOR_COLUMN_NAME)[
+                    C.DATE_COLUMN_NAME
+                ].idxmax()
+            ]
+            st.session_state.df_data = latest_indices.reset_index(drop=True)
+
+            # استخلاص آخر وقت تحديث من البيانات
+            last_update_dt_utc = historical_data[C.DATE_COLUMN_NAME].max()
+            cairo_tz = pytz.timezone(C.TIMEZONE)
+
+            # التأكد من أن التوقيت معرف قبل تحويله
+            if last_update_dt_utc.tzinfo is None:
+                last_update_dt_utc = last_update_dt_utc.tz_localize("UTC")
+
+            last_update_dt_cairo = last_update_dt_utc.astimezone(cairo_tz)
+            last_update_date = last_update_dt_cairo.strftime("%Y-%m-%d")
+            last_update_time = last_update_dt_cairo.strftime("%I:%M %p")
+            st.session_state.last_update = (last_update_date, last_update_time)
+
+        else:
+            # التعامل مع حالة كون قاعدة البيانات فارغة
+            st.session_state.df_data = pd.DataFrame()
+            st.session_state.last_update = ("البيانات الأولية", None)
+
+        # تهيئة باقي متغيرات الحالة
         st.session_state.primary_results = None
         st.session_state.secondary_results = None
+    # --- END: تعديل منطق تحميل البيانات ---
 
     # استخراج البيانات من حالة الجلسة
     data_df = st.session_state.df_data
@@ -409,9 +452,9 @@ def main():
                         unsafe_allow_html=True,
                     )
 
-                    final_amount = results.total_payout + results.net_return
+                    final_amount = results.purchase_price + results.net_return
                     st.markdown(
-                        f"""<div style="text-align: center; background-color: #212529; padding: 10px; border-radius: 10px; "><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("المبلغ النهائي بعد الأرباح")}</p><p style="font-size: 1.9rem; color: #8ab4f8; font-weight: 600; line-height: 1.2;">{format_currency(final_amount)}</p></div>""",
+                        f"""<div style="text-align: center; background-color: #212529; padding: 10px; border-radius: 10px; "><p style="font-size: 1rem; color: #adb5bd; margin-bottom: 0px;">{prepare_arabic_text("المبلغ المسترد بعد الضريبة")}</p><p style="font-size: 1.9rem; color: #8ab4f8; font-weight: 600; line-height: 1.2;">{format_currency(final_amount)}</p></div>""",
                         unsafe_allow_html=True,
                     )
                     st.divider()
@@ -435,7 +478,7 @@ def main():
                     )
                     st.info(
                         prepare_arabic_text(
-                            """**💡 آلية صرف العوائد والضريبة:**\n- **العائد الإجمالي (قبل الضريبة)** يُضاف إلى حسابك مقدمًا في يوم الشراء.\n- في نهاية المدة، تسترد **القيمة الإسمية الكاملة**.\n- **قيمة الضريبة** يتم خصمها من حسابك في تاريخ الاستحقاق. **لذا، يجب التأكد من وجود هذا المبلغ في حسابك لتجنب أي  خصم من المبلغ الأساسي.**"""
+                            """**💡 آلية صرف العوائد والضريبة:**\n- **صافي الربح** يُضاف إلى حسابك مقدمًا في يوم الشراء (بعد خصم الضريبة مباشرة).\n- في نهاية المدة، تسترد **القيمة الإسمية الكاملة**.\n- تم بالفعل خصم الضريبة من الربح المقدم، لذا لا توجد خصومات مستقبلية متعلقة بهذا الإذن."""
                         ),
                         icon="💡",
                     )
