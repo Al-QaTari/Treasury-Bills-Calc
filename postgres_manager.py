@@ -164,12 +164,24 @@ class PostgresDBManager(HistoricalDataStore):
             )
             return pd.DataFrame(), ("البيانات الأولية", None)
 
-    def load_all_historical_data(self) -> pd.DataFrame:
+    @st.cache_data
+    def load_all_historical_data(_self) -> pd.DataFrame:
+        """
+        تحميل جميع البيانات التاريخية من قاعدة البيانات.
+        يتم تخزين نتيجة هذه الدالة مؤقتاً لتجنب إعادة استدعاء قاعدة البيانات.
+        """
         try:
-            with self.engine.connect() as conn:
+            with _self.engine.connect() as conn:
                 query = f'SELECT * FROM "{C.TABLE_NAME}"'
                 df = pd.read_sql_query(query, conn)
+
+                if df.empty:
+                    return pd.DataFrame()
+
+                # التأكد من أن عمود التاريخ من نوع datetime قبل الفرز
+                df[C.DATE_COLUMN_NAME] = pd.to_datetime(df[C.DATE_COLUMN_NAME])
                 return df.sort_values(by=C.DATE_COLUMN_NAME, ascending=False)
+
         except Exception:
             logger.error("❌ فشل تحميل البيانات التاريخية من PostgreSQL", exc_info=True)
             return pd.DataFrame()
