@@ -13,6 +13,8 @@ STREAMLIT_APP_URL = "http://localhost:8501"
 @pytest_asyncio.fixture
 async def browser_page():
     async with async_playwright() as p:
+        # في بيئات التشغيل الآلي (CI)، قد تحتاج لإضافة --no-sandbox
+        # browser = await p.chromium.launch(args=["--no-sandbox"])
         browser = await p.chromium.launch()
         page = await browser.new_page()
         yield page
@@ -21,32 +23,44 @@ async def browser_page():
 
 @pytest.mark.ui
 @pytest.mark.asyncio
-async def test_app_main_title(browser_page):
-    """يتحقق من أن عنوان التطبيق الرئيسي يظهر بشكل صحيح، وإذا لم يظهر يتم تجاوز الاختبار."""
-    await browser_page.goto(STREAMLIT_APP_URL, timeout=20000)
+async def test_app_main_title_is_visible(browser_page):
+    """
+    يتحقق من أن عنوان التطبيق الرئيسي يظهر بشكل صحيح خلال فترة زمنية معقولة.
+    """
+    await browser_page.goto(STREAMLIT_APP_URL, timeout=30000)
 
-    title_element = browser_page.locator("h1, h2, h3").filter(
-        has_text="عوائد أذون الخزانة"
+    # استخدام محدد أكثر دقة للوصول إلى العنوان داخل الهيدر
+    title_element = browser_page.locator(".centered-header h1")
+
+    # زيادة مهلة الانتظار والتأكد من أن النص المتوقع موجود
+    await expect(title_element).to_contain_text(
+        "حاسبة أذون الخزانة المصرية", timeout=20000
     )
-    try:
-        await expect(title_element).to_be_visible(timeout=10000)
-    except AssertionError:
-        # 🛠️ احفظ الصفحة لتعرف السبب
-        html_content = await browser_page.content()
-        with open("failed_page.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
-        # ✅ تجاوز الاختبار بدلًا من الفشل
-        pytest.skip("العنوان لم يظهر، يتم تجاوز الاختبار مؤقتًا.")
+    await expect(title_element).to_be_visible()
 
 
 @pytest.mark.ui
 @pytest.mark.asyncio
-async def test_update_data_button_exists(browser_page):
-    """يتحقق من أن زر 'تحديث البيانات الآن 🔄' موجود فقط إذا ظهر في الصفحة (يوم عطاء)."""
-    await browser_page.goto(STREAMLIT_APP_URL, timeout=20000)
+async def test_data_center_buttons_exist(browser_page):
+    """
+    يتحقق من وجود أي من الأزرار الممكنة في 'مركز البيانات'.
+    هذا الاختبار ينجح إذا وجد زر التحديث، أو الزر المعطل، أو زر المحاولة.
+    """
+    await browser_page.goto(STREAMLIT_APP_URL, timeout=30000)
 
-    update_button = browser_page.get_by_role("button", name="تحديث البيانات الآن 🔄")
-    try:
-        await expect(update_button).to_be_visible(timeout=3000)
-    except AssertionError:
-        pytest.skip("الزر غير ظاهر لأن اليوم ليس يوم عطاء بدأ.")
+    # تعريف المحددات لجميع الأزرار الممكنة
+    update_now_button = browser_page.get_by_role(
+        "button", name="تحديث البيانات الآن 🔄"
+    )
+    updated_disabled_button = browser_page.get_by_role("button", name="محدثة ✅")
+    try_anyway_button = browser_page.get_by_role(
+        "button", name="محاولة التحديث على أي حال 🔄"
+    )
+
+    # استخدام .or_() للبحث عن أي من المحددات الثلاثة
+    # ينجح الاختبار إذا كان أي واحد منهم ظاهرًا
+    combined_locator = update_now_button.or_(updated_disabled_button).or_(
+        try_anyway_button
+    )
+
+    await expect(combined_locator).to_be_visible(timeout=15000)
