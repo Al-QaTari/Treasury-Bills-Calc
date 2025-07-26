@@ -32,7 +32,9 @@ if not browser_path.exists():
     print("Browser not found, installing Playwright browsers...")
     try:
         # تشغيل أمر التثبيت
-        subprocess.run([f"{sys.executable}", "-m", "playwright", "install", "chromium"], check=True)
+        subprocess.run(
+            [f"{sys.executable}", "-m", "playwright", "install", "chromium"], check=True
+        )
         print("Browser installation successful.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to install browser: {e}")
