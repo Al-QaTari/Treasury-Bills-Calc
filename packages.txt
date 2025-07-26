@@ -28,3 +28,8 @@ xvfb
 libxml2-dev
 libxslt1-dev
 zlib1g-dev
+libnss3
+libxss1
+libasound2
+libatk-bridge2.0-0
+libgtk-3-0
