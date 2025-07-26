@@ -1,24 +1,6 @@
 import subprocess
 import sys
 from pathlib import Path
-
-# المسار الذي سيتم فيه التحقق من وجود المتصفح
-# هذا المسار يتوافق مع بيئة Streamlit Cloud
-browser_path = Path.home() / ".cache/ms-playwright/chromium-1124/chrome-linux/chrome"
-
-# التحقق مما إذا كان المتصفح غير موجود
-if not browser_path.exists():
-    print("Browser not found, installing Playwright browsers...")
-    try:
-        # تشغيل أمر التثبيت
-        subprocess.run([f"{sys.executable}", "-m", "playwright", "install", "chromium"], check=True)
-        print("Browser installation successful.")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to install browser: {e}")
-        # يمكنك هنا عرض رسالة خطأ في التطبيق إذا أردت
-        # st.error(f"Failed to install browser: {e}")
-else:
-    print("Browser already installed.")
 import os
 import streamlit as st
 import pandas as pd
@@ -41,6 +23,23 @@ from treasury_core.models import PrimaryYieldInput, SecondarySaleInput
 from cbe_scraper import CbeScraper, fetch_and_update_data
 import constants as C
 
+# المسار الذي سيتم فيه التحقق من وجود المتصفح
+# هذا المسار يتوافق مع بيئة Streamlit Cloud
+browser_path = Path.home() / ".cache/ms-playwright/chromium-1124/chrome-linux/chrome"
+
+# التحقق مما إذا كان المتصفح غير موجود
+if not browser_path.exists():
+    print("Browser not found, installing Playwright browsers...")
+    try:
+        # تشغيل أمر التثبيت
+        subprocess.run([f"{sys.executable}", "-m", "playwright", "install", "chromium"], check=True)
+        print("Browser installation successful.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install browser: {e}")
+        # يمكنك هنا عرض رسالة خطأ في التطبيق إذا أردت
+        # st.error(f"Failed to install browser: {e}")
+else:
+    print("Browser already installed.")
 # تهيئة اللوجينج والتتبع
 setup_logging(level=logging.WARNING)
 load_dotenv()
