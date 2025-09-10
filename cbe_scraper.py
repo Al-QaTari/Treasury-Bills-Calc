@@ -69,22 +69,34 @@ class CbeScraper(YieldDataSource):
                     f"Page structure verification failed! Marker '{marker}' not found."
                 )
 
+    # --- START OF MODIFICATION ---
     def _parse_cbe_html(self, page_source: str) -> Optional[pd.DataFrame]:
         """Parses the HTML content to extract T-bill yield data into a DataFrame."""
         try:
+            logger.info("Parsing HTML content...")
             soup = BeautifulSoup(page_source, "lxml")
             results_headers = soup.find_all(
                 "h2", string=lambda text: text and "النتائج" in text
             )
             if not results_headers:
-                logger.warning("⚠️ No 'Results' headers found on the page.")
+                logger.warning(
+                    "⚠️ No 'Results' headers (h2) found on the page during parsing."
+                )
                 return None
 
+            logger.info(f"Found {len(results_headers)} 'Results' section(s) to parse.")
             all_dataframes = []
-            for header in results_headers:
-                dates_table = header.find_next_sibling("table")
+            for i, header in enumerate(results_headers):
+                logger.info(f"-> Processing section {i+1}...")
+
+                # Use find_next() for more resilience against structure changes (e.g., wrapped tables)
+                dates_table = header.find_next("table")
                 if not dates_table:
+                    logger.warning(
+                        f"  - Section {i+1}: Could not find a dates table following the header."
+                    )
                     continue
+
                 dates_df = pd.read_html(StringIO(str(dates_table)))[0]
                 tenors = (
                     pd.to_numeric(dates_df.columns[1:], errors="coerce")
@@ -95,6 +107,9 @@ class CbeScraper(YieldDataSource):
 
                 session_dates_row = dates_df[dates_df.iloc[:, 0] == "تاريخ الجلسة"]
                 if session_dates_row.empty or not tenors:
+                    logger.warning(
+                        f"  - Section {i+1}: 'Session Date' row or tenors not found in the dates table."
+                    )
                     continue
                 session_dates = session_dates_row.iloc[0, 1 : len(tenors) + 1].tolist()
 
@@ -110,10 +125,18 @@ class CbeScraper(YieldDataSource):
                     and C.ACCEPTED_BIDS_KEYWORD in tag.get_text()
                 )
                 if not accepted_bids_header:
+                    logger.warning(
+                        f"  - Section {i+1}: Could not find the 'Accepted Bids' header text."
+                    )
                     continue
-                yields_table = accepted_bids_header.find_next_sibling("table")
+
+                yields_table = accepted_bids_header.find_next("table")
                 if not yields_table:
+                    logger.warning(
+                        f"  - Section {i+1}: Could not find a yields table following the 'Accepted Bids' header."
+                    )
                     continue
+
                 yields_df_raw = pd.read_html(StringIO(str(yields_table)))[0]
                 yields_df_raw.columns = ["البيان"] + tenors
 
@@ -121,6 +144,9 @@ class CbeScraper(YieldDataSource):
                     yields_df_raw.iloc[:, 0].str.contains(C.YIELD_ANCHOR_TEXT, na=False)
                 ]
                 if yield_row.empty:
+                    logger.warning(
+                        f"  - Section {i+1}: Could not find the yield row in the yields table."
+                    )
                     continue
 
                 yield_series = yield_row.iloc[0, 1:].astype(float)
@@ -128,14 +154,22 @@ class CbeScraper(YieldDataSource):
 
                 section_df = dates_tenors_df.join(yield_series, on=C.TENOR_COLUMN_NAME)
                 if not section_df[C.YIELD_COLUMN_NAME].isnull().any():
+                    logger.info(
+                        f"  - Section {i+1}: Successfully parsed data for tenors: {section_df[C.TENOR_COLUMN_NAME].tolist()}"
+                    )
                     all_dataframes.append(section_df)
+                else:
+                    logger.warning(
+                        f"  - Section {i+1}: Parsed data contains null yields, skipping."
+                    )
 
             if not all_dataframes:
                 logger.warning(
-                    "⚠️ Could not extract any valid data sections after parsing."
+                    "⚠️ Could not extract any valid data sections after parsing the entire page."
                 )
                 return None
 
+            logger.info("Combining and cleaning parsed data...")
             final_df = pd.concat(all_dataframes, ignore_index=True)
             final_df["session_date_dt"] = pd.to_datetime(
                 final_df[C.SESSION_DATE_COLUMN_NAME], format="%d/%m/%Y", errors="coerce"
@@ -160,7 +194,8 @@ class CbeScraper(YieldDataSource):
             )
             return None
 
-    # --- START OF MODIFICATION ---
+    # --- END OF MODIFICATION ---
+
     async def _scrape_from_web_async(self) -> Optional[pd.DataFrame]:
         """Uses Playwright to launch a headless browser and scrape the page content with retries."""
         logger.info("🚀 Starting asynchronous web scrape with Playwright...")
@@ -188,15 +223,13 @@ class CbeScraper(YieldDataSource):
                         )
                         page = await context.new_page()
 
-                        # Increased navigation timeout and wait for DOM content to be loaded first.
                         navigation_timeout = 180 * 1000  # 3 minutes
                         await page.goto(
                             C.CBE_DATA_URL,
                             timeout=navigation_timeout,
-                            wait_until="domcontentloaded",  # More reliable than networkidle
+                            wait_until="domcontentloaded",
                         )
 
-                        # Use a more flexible selector: wait for any h2 containing the key text.
                         await page.wait_for_selector(
                             "h2:has-text('النتائج')",
                             timeout=C.SCRAPER_TIMEOUT_SECONDS * 1000,
@@ -208,12 +241,12 @@ class CbeScraper(YieldDataSource):
 
                         if parsed_data is not None and not parsed_data.empty:
                             logger.info(
-                                f"✅ Successfully scraped data on attempt {attempt + 1}."
+                                f"✅ Successfully scraped and parsed data on attempt {attempt + 1}."
                             )
                             return parsed_data
 
                         logger.warning(
-                            f"⚠️ Scraped on attempt {attempt + 1}, but no data was parsed."
+                            f"⚠️ Scraped on attempt {attempt + 1}, but no data was parsed from HTML."
                         )
 
                     except Exception as e:
@@ -223,7 +256,6 @@ class CbeScraper(YieldDataSource):
                         )
                         if "page" in locals():
                             try:
-                                # Save screenshot to the current working directory, which is usually writable.
                                 screenshot_path = f"debug_attempt_{attempt + 1}.png"
                                 await page.screenshot(
                                     path=screenshot_path, full_page=True
@@ -247,8 +279,6 @@ class CbeScraper(YieldDataSource):
 
         logger.error(f"❌ All {max_retries} scraping attempts failed.")
         return None
-
-    # --- END OF MODIFICATION ---
 
     async def get_latest_yields_async(
         self, force_refresh: bool = False
