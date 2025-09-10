@@ -174,7 +174,6 @@ class CbeScraper(YieldDataSource):
                 async with async_playwright() as p:
                     browser: Optional[Browser] = None
                     try:
-                        # More robust launch arguments for stability in docker/cron environments
                         browser_args = [
                             "--no-sandbox",
                             "--disable-dev-shm-usage",
@@ -189,19 +188,17 @@ class CbeScraper(YieldDataSource):
                         )
                         page = await context.new_page()
 
-                        # Use 'networkidle' for more reliable page load detection and a longer timeout.
-                        navigation_timeout = (
-                            C.SCRAPER_TIMEOUT_SECONDS + 120
-                        ) * 1000  # Add 2 extra minutes
+                        # Increased navigation timeout and wait for DOM content to be loaded first.
+                        navigation_timeout = 180 * 1000  # 3 minutes
                         await page.goto(
                             C.CBE_DATA_URL,
                             timeout=navigation_timeout,
-                            wait_until="networkidle",
+                            wait_until="domcontentloaded",  # More reliable than networkidle
                         )
 
-                        # As a final check, wait for a key element that indicates data is present.
+                        # Use a more flexible selector: wait for any h2 containing the key text.
                         await page.wait_for_selector(
-                            "h2:has-text('النتائج') + table",
+                            "h2:has-text('النتائج')",
                             timeout=C.SCRAPER_TIMEOUT_SECONDS * 1000,
                         )
 
@@ -213,7 +210,7 @@ class CbeScraper(YieldDataSource):
                             logger.info(
                                 f"✅ Successfully scraped data on attempt {attempt + 1}."
                             )
-                            return parsed_data  # Success, exit the loop
+                            return parsed_data
 
                         logger.warning(
                             f"⚠️ Scraped on attempt {attempt + 1}, but no data was parsed."
@@ -226,9 +223,8 @@ class CbeScraper(YieldDataSource):
                         )
                         if "page" in locals():
                             try:
-                                screenshot_path = (
-                                    f"/app/debug_attempt_{attempt + 1}.png"
-                                )
+                                # Save screenshot to the current working directory, which is usually writable.
+                                screenshot_path = f"debug_attempt_{attempt + 1}.png"
                                 await page.screenshot(
                                     path=screenshot_path, full_page=True
                                 )
@@ -259,9 +255,6 @@ class CbeScraper(YieldDataSource):
     ) -> Optional[pd.DataFrame]:
         """
         Fetches T-bill data, using a cache to avoid redundant web requests.
-
-        Args:
-            force_refresh: If True, bypasses the cache and fetches fresh data from the web.
         """
         if not force_refresh and self.redis_client:
             try:
@@ -335,8 +328,6 @@ async def fetch_and_update_data_async(
     db_session_date_str = data_store.get_latest_session_date()
     live_latest_date_str = latest_data[C.SESSION_DATE_COLUMN_NAME].iloc[0]
 
-    # Using > comparison assumes dates are consistently formatted (e.g., YYYY-MM-DD)
-    # If not, they should be parsed to datetime objects first.
     is_new_data = not db_session_date_str or live_latest_date_str > db_session_date_str
 
     if force_refresh or is_new_data:
